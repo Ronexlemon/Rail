@@ -1,7 +1,14 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/ronexlemon/rail/auth-service/utils"
+)
 
 func main(){
 	fmt.Println("AUTH SERVICE .......")
+	result,_:= utils.GenerateAPIKeys("RAILS")
+	fmt.Println(result)
+
 }
