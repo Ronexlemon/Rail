@@ -1,0 +1,197 @@
+version: '3.9'
+
+services:
+
+  # -------------------------
+  # Postgres
+  # -------------------------
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: main
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - go_network
+
+  # -------------------------
+  # Zookeeper
+  # -------------------------
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - go_network
+
+  # -------------------------
+  # Kafka
+  # -------------------------
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - go_network
+
+  # -------------------------
+  # Auth Service
+  # -------------------------
+  auth-service:
+    build:
+      context: .
+      dockerfile: ./micro-services/auth-service/Dockerfile
+    container_name: auth-service
+    restart: always
+    depends_on:
+      - postgres
+      - kafka
+    environment:
+      SERVICE_NAME: auth-service
+      SERVICE_PORT: 8081
+      DATABASE_URL: postgres://admin:admin@postgres:5432/main?sslmode=disable
+      KAFKA_BROKERS: kafka:9092
+    ports:
+      - "8081:8081"
+    networks:
+      - go_network
+
+  # -------------------------
+  # Transaction Service
+  # -------------------------
+  transaction-service:
+    build:
+      context: .
+      dockerfile: ./micro-services/transaction-service/Dockerfile
+    container_name: transaction-service
+    restart: always
+    depends_on:
+      - postgres
+      - kafka
+    environment:
+      SERVICE_NAME: transaction-service
+      SERVICE_PORT: 8082
+      DATABASE_URL: postgres://admin:admin@postgres:5432/main?sslmode=disable
+      KAFKA_BROKERS: kafka:9092
+    ports:
+      - "8082:8082"
+    networks:
+      - go_network
+
+  # -------------------------
+  # Wallet Service
+  # -------------------------
+  wallet-service:
+    build:
+      context: .
+      dockerfile: ./micro-services/wallet-service/Dockerfile
+    container_name: wallet-service
+    restart: always
+    depends_on:
+      - postgres
+      - kafka
+    environment:
+      SERVICE_NAME: wallet-service
+      SERVICE_PORT: 8083
+      DATABASE_URL: postgres://admin:admin@postgres:5432/main?sslmode=disable
+      KAFKA_BROKERS: kafka:9092
+    ports:
+      - "8083:8083"
+    networks:
+      - go_network
+
+  # -------------------------
+  # Settlement Service
+  # -------------------------
+  settlement-service:
+    build:
+      context: .
+      dockerfile: ./micro-services/settlement-service/Dockerfile
+    container_name: settlement-service
+    restart: always
+    depends_on:
+      - postgres
+      - kafka
+    environment:
+      SERVICE_NAME: settlement-service
+      SERVICE_PORT: 8084
+      DATABASE_URL: postgres://admin:admin@postgres:5432/main?sslmode=disable
+      KAFKA_BROKERS: kafka:9092
+    ports:
+      - "8084:8084"
+    networks:
+      - go_network
+
+  # -------------------------
+  # Business Service
+  # -------------------------
+  business-service:
+    build:
+      context: .
+      dockerfile: ./micro-services/business-service/Dockerfile
+    container_name: business-service
+    restart: always
+    depends_on:
+      - postgres
+      - kafka
+    environment:
+      SERVICE_NAME: business-service
+      SERVICE_PORT: 8085
+      DATABASE_URL: postgres://admin:admin@postgres:5432/main?sslmode=disable
+      KAFKA_BROKERS: kafka:9092
+    ports:
+      - "8085:8085"
+    networks:
+      - go_network
+
+  # -------------------------
+  # Notification Service
+  # -------------------------
+  notification-service:
+    build:
+      context: .
+      dockerfile: ./micro-services/notification-service/Dockerfile
+    container_name: notification-service
+    restart: always
+    depends_on:
+      - postgres
+      - kafka
+    environment:
+      SERVICE_NAME: notification-service
+      SERVICE_PORT: 8086
+      DATABASE_URL: postgres://admin:admin@postgres:5432/main?sslmode=disable
+      KAFKA_BROKERS: kafka:9092
+    ports:
+      - "8086:8086"
+    networks:
+      - go_network
+
+# -------------------------
+# Volumes & Networks
+# -------------------------
+volumes:
+  postgres_data:
+
+networks:
+  go_network:
+    driver: bridge
