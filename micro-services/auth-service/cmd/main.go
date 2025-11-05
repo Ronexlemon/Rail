@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/ronexlemon/rail/auth-service/utils"
+	"github.com/ronexlemon/rail/micro-services/auth-service/utils"
 )
 
 func main(){
