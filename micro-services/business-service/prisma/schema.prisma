@@ -9,7 +9,13 @@ generator db{
 
 
 
-model Business{
+model Client{
     id    String @id @default(cuid())
+    customer_id String @unique
+    business_id  String
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
    
 }
+
+//include virtual accounts

@@ -9,7 +9,7 @@ generator db{
 
 
 
-model Business{
+model Wallet{
     id    String @id @default(cuid())
    
 }

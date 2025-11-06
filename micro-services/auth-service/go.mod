@@ -8,4 +8,13 @@ require (
 	github.com/steebchen/prisma-client-go v0.47.0
 )
 
-require go.mongodb.org/mongo-driver/v2 v2.0.1 // indirect
+require (
+	github.com/klauspost/compress v1.16.7 // indirect
+	github.com/pierrec/lz4/v4 v4.1.15 // indirect
+	github.com/segmentio/kafka-go v0.4.49 // indirect
+)
+
+require (
+	github.com/ronexlemon/rail/shared v0.0.0-20251106133702-6663f374dc32
+	go.mongodb.org/mongo-driver/v2 v2.0.1 // indirect
+)

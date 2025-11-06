@@ -41,7 +41,7 @@ func (c *KafkaConsumer) Consume(ctx context.Context,handler func(key,value[]byte
 			return
 
 			}
-			log.Printf("Kafka consumer error %v",err)
+			//log.Printf("Kafka consumer error %v",err)
 			continue
 			
 		}

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	config "github.com/ronexlemon/rail/micro-services/auth-service/configs"
 	"github.com/ronexlemon/rail/micro-services/auth-service/internal/service"
 )
 
@@ -23,13 +24,14 @@ func (h *BusinessHandler) RegisterBusinessHandler(w http.ResponseWriter, r *http
 		http.Error(w,"Invalid Request body",http.StatusBadRequest)
 		return
 	}
-	user, err := h.service.RegisterBusiness(req.Email,req.CompanyReg)
+	user, err := h.service.RegisterBusiness(req.Email,req.CompanyReg,req.name)
 	if err !=nil{
 		http.Error(w,err.Error(),http.StatusInternalServerError)
 		return
 	}
 
 	//fire kafka event
+	config.PublishEvent(user.ID,user)
 
 	w.Header().Set("Content-Type","application/json")
 	json.NewEncoder(w).Encode(user)

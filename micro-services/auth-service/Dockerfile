@@ -37,7 +37,9 @@ COPY --from=builder /app/configs ./configs
 # Set environment variables
 ENV SERVICE_NAME=auth-service
 ENV SERVICE_PORT=8081
+#ENV DATABASE_URL=postgres://admin:admin@postgres:5432/main?sslmode=disable
 ENV DATABASE_URL=postgres://admin:admin@postgres:5432/main?sslmode=disable
+
 ENV KAFKA_BROKERS=kafka:9092
 
 EXPOSE 8081

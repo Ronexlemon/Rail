@@ -16,6 +16,7 @@ RUN go mod download
 COPY micro-services/wallet-service/. ./
 COPY shared ./shared
 
+
 RUN go run github.com/steebchen/prisma-client-go generate
 # Tidy dependencies and build
 RUN go mod tidy
