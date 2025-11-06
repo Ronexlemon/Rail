@@ -4,6 +4,7 @@ FROM golang:1.25-alpine AS builder
 
 WORKDIR /app
 
+RUN apk add --no-cache git
 # Copy go.mod and go.sum for service + shared
 COPY micro-services/auth-service/go.mod ./micro-services/auth-service/go.sum ./
 COPY shared/go.mod ./shared/go.sum ./shared/
@@ -14,6 +15,8 @@ RUN go mod download
 # Copy service source code and shared code
 COPY micro-services/auth-service/. ./
 COPY shared ./shared
+
+RUN go run github.com/steebchen/prisma-client-go generate
 
 # Tidy dependencies and build binary
 RUN go mod tidy

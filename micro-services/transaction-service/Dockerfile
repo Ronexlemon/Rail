@@ -4,6 +4,7 @@ FROM golang:1.25-alpine AS builder
 
 WORKDIR /app
 
+RUN apk add --no-cache git
 # Copy go.mod and go.sum for service + shared
 COPY micro-services/transaction-service/go.mod ./micro-services/transaction-service/go.sum ./
 COPY shared/go.mod ./shared/go.sum ./shared/
@@ -15,6 +16,7 @@ RUN go mod download
 COPY micro-services/transaction-service/. ./
 COPY shared ./shared
 
+RUN go run github.com/steebchen/prisma-client-go generate
 # Ensure dependencies are tidy and build binary
 RUN go mod tidy
 RUN go build -o transaction-service ./cmd/main.go

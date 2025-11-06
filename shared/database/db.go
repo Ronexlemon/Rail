@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/ronexlemon/rail/shared/config"
+	
 )
 
 var DB *sql.DB
@@ -30,3 +31,5 @@ func Connect() *sql.DB{
 	DB =db
 	return DB
 }
+
+func ConnectPrisma()
