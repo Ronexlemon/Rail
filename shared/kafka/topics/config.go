@@ -17,13 +17,21 @@ var brokerURL = sharedKafka.GetEnv("KAFKA_BROKERS","kafka:9092")
 var KafkaBrokerList = []string{"localhost:9092"}
 
 func initializeTopics() []string {
-   
-    authTopics := []string{TopicApiKeyRotation, TopicBusinessDeactivated, TopicUserCreated}
-    businessTopics := []string{TopicClientCreated, TopicClientDeactivated}
-    transactionTopics := []string{TopicCrossChainTransaction, TopicTransactionCreated, TopicTransactionUpdated} // Corrected name to be plural
-    settlementTopics := []string{TopicSettlementProcessed, TopicSettlementFailed}
-    walletTopics := []string{TopicBalanceUpdated, TopicWalletCreated}
-    notificationTopics := []string{TopicNotificationCreated}
+
+	
+	
+	
+	
+	
+    authTopics := []string{TopicBusinessRegister, TopicBusinessVerified,TopicBusinessApiKeyGenerated,TopicBusinessapiKeyRevoked,TopicBusinessDeactivated}
+    businessTopics := []string{TopicBusinessRegistered, TopicBusinessPendingVerification,TopicBusinessWalletLinked,TopicBusinessSuspended,TopicCustomerCreated,TopicCustomerDeactivated,TopicCustomerDeactivated}
+    transactionTopics := []string{TopicTransactionInitiated,TopicTransactionApproved, TopicTransactionCancelled, TopicTransactionFailed,TopicTransactionValidated } // Corrected name to be plural
+    settlementTopics := []string{TopicSettlementCompleted, TopicSettlementFailed,TopicSettlementInProgress,TopicSettlementInitiated,TopicSettlementInProgress,TopicOnchainTransactionConfirmed,TopicOnchainTransactionFailed}
+    walletTopics := []string{TopicWalletCreated,TopicWalletFunded,TopicWalletDebited,TopicwalletCredited,TopicWalletFunded,TopicWalletSuspended, TopicWalletBalanceUpdated,TopicWalletClosed}
+    notificationTopics := []string{TopicNotificationCreated,TopicNotificationSent}
+	compliance :=[]string{TopicKYCRejected,TopicBusinessFlagged}
+	report :=[]string{TopicReportGenerated,TopicAnalyticUpdated}
+
 
     
     allTopics := make([]string, 0)
@@ -34,6 +42,8 @@ func initializeTopics() []string {
     allTopics = append(allTopics, settlementTopics...)
     allTopics = append(allTopics, walletTopics...)
     allTopics = append(allTopics, notificationTopics...)
+	allTopics = append(allTopics, compliance...)
+	allTopics = append(allTopics, report...)
 
     return allTopics
 }

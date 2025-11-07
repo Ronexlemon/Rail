@@ -1,8 +1,11 @@
 package topics
 
 const (
-	TopicTransactionCreated = "transaction-created"
-	TopicTransactionUpdated = "transaction-updated"
-	TopicCrossChainTransaction = "cross-chain-transaction"
+	TopicTransactionInitiated = "transaction-initiated"
+	TopicTransactionValidated = "transaction-validated"
+	TopicTransactionApproved = "transaction-approved"
+	TopicTransactionFailed = "transaction-failed"
+	TopicTransactionCancelled = "transaction-cancelled"
 	
+
 )
