@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"net/http"
 
-	config "github.com/ronexlemon/rail/micro-services/auth-service/configs"
+	
+	"github.com/ronexlemon/rail/micro-services/auth-service/events"
 	"github.com/ronexlemon/rail/micro-services/auth-service/internal/service"
+	
 )
 
 
@@ -31,7 +33,8 @@ func (h *BusinessHandler) RegisterBusinessHandler(w http.ResponseWriter, r *http
 	}
 
 	//fire kafka event
-	config.PublishEvent(user.ID,user)
+	events.PublishEvent(user.ID,user)
+	
 
 	w.Header().Set("Content-Type","application/json")
 	json.NewEncoder(w).Encode(user)

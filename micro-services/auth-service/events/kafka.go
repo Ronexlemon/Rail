@@ -1,14 +1,15 @@
-package config
+package events
 
 import (
-    "encoding/json"
-    "log"
+	"encoding/json"
+	"log"
 
-    "github.com/ronexlemon/rail/shared/kafka"
+	config "github.com/ronexlemon/rail/micro-services/auth-service/configs"
+	"github.com/ronexlemon/rail/shared/kafka"
 )
 
 func PublishEvent(key string, value interface{}) {
-    brokerUrl := GetEnv("KAFKA_BROKERS", "kafka:9092")
+    brokerUrl := config.GetEnv("KAFKA_BROKERS", "kafka:9092")
 
     producer := kafka.NewKafkaProducer(brokerUrl, "business.register")
 
