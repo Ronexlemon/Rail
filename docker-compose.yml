@@ -1,4 +1,4 @@
-version: '3.9'
+#version: '3.9'
 
 services:
 
@@ -8,7 +8,7 @@ services:
   postgres:
     image: postgres:16
     container_name: postgres
-    restart: always
+    restart: unless-stopped
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
@@ -62,7 +62,7 @@ services:
       context: .
       dockerfile: ./micro-services/auth-service/Dockerfile
     container_name: auth-service
-    restart: always
+    restart: unless-stopped
     depends_on:
       - postgres
       - kafka
@@ -84,7 +84,7 @@ services:
       context: .
       dockerfile: ./micro-services/transaction-service/Dockerfile
     container_name: transaction-service
-    restart: always
+    restart: unless-stopped
     depends_on:
       - postgres
       - kafka
@@ -106,7 +106,7 @@ services:
       context: .
       dockerfile: ./micro-services/wallet-service/Dockerfile
     container_name: wallet-service
-    restart: always
+    restart: unless-stopped
     depends_on:
       - postgres
       - kafka
@@ -128,7 +128,7 @@ services:
       context: .
       dockerfile: ./micro-services/settlement-service/Dockerfile
     container_name: settlement-service
-    restart: always
+    restart: unless-stopped
     depends_on:
       - postgres
       - kafka
@@ -150,7 +150,7 @@ services:
       context: .
       dockerfile: ./micro-services/business-service/Dockerfile
     container_name: business-service
-    restart: always
+    restart: unless-stopped
     depends_on:
       - postgres
       - kafka
@@ -172,7 +172,7 @@ services:
       context: .
       dockerfile: ./micro-services/notification-service/Dockerfile
     container_name: notification-service
-    restart: always
+    restart: unless-stopped
     depends_on:
       - postgres
       - kafka
