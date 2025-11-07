@@ -6,12 +6,14 @@ import (
 
 	config "github.com/ronexlemon/rail/micro-services/auth-service/configs"
 	"github.com/ronexlemon/rail/shared/kafka"
+    "github.com/ronexlemon/rail/shared/kafka/topics"
 )
 
 func PublishEvent(key string, value interface{}) {
     brokerUrl := config.GetEnv("KAFKA_BROKERS", "kafka:9092")
-
-    producer := kafka.NewKafkaProducer(brokerUrl, "business.register")
+    
+    
+    producer := kafka.NewKafkaProducer(brokerUrl, topics.TopicUserCreated)
 
     // Convert value to JSON
     jsonValue, err := json.Marshal(value)

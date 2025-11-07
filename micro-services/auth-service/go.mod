@@ -15,6 +15,6 @@ require (
 )
 
 require (
-	github.com/ronexlemon/rail/shared v0.0.0-20251106215222-4018bfa639ea
+	github.com/ronexlemon/rail/shared v0.0.0-20251107101654-0abf53912c08
 	go.mongodb.org/mongo-driver/v2 v2.0.1 // indirect
 )

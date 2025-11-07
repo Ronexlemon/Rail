@@ -4,6 +4,8 @@ github.com/pierrec/lz4/v4 v4.1.15 h1:MO0/ucJhngq7299dKLwIMtgTfbkoSPF6AoMYDd8Q4q0
 github.com/pierrec/lz4/v4 v4.1.15/go.mod h1:gZWDp/Ze/IJXGXf23ltt2EXimqmTUXEy0GFuRQyBid4=
 github.com/ronexlemon/rail/shared v0.0.0-20251106215222-4018bfa639ea h1:473s1OqgfQvps1rQ5uOY4RG8fp9PLkfBNhlqSjTC6F4=
 github.com/ronexlemon/rail/shared v0.0.0-20251106215222-4018bfa639ea/go.mod h1:TBkBRc+9quJFcang8/6qi1L7L/QZyHmCzGq00n5Cp+4=
+github.com/ronexlemon/rail/shared v0.0.0-20251107101654-0abf53912c08 h1:ZQpdrQLHdopk1XGV0ZromNvKLLo9l+Pf+rRkWEnwKf8=
+github.com/ronexlemon/rail/shared v0.0.0-20251107101654-0abf53912c08/go.mod h1:TBkBRc+9quJFcang8/6qi1L7L/QZyHmCzGq00n5Cp+4=
 github.com/segmentio/kafka-go v0.4.49 h1:GJiNX1d/g+kG6ljyJEoi9++PUMdXGAxb7JGPiDCuNmk=
 github.com/segmentio/kafka-go v0.4.49/go.mod h1:Y1gn60kzLEEaW28YshXyk2+VCUKbJ3Qr6DrnT3i4+9E=
 github.com/steebchen/prisma-client-go v0.47.0 h1:mKelgkcGPcIardjTP5diGq6hvnueQc/DYEyQ+6uZ0/E=

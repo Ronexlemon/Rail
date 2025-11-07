@@ -14,7 +14,7 @@ import (
 
 var brokerURL = sharedKafka.GetEnv("KAFKA_BROKERS","kafka:9092")
 
-var KafkaBrokerList = []string{brokerURL}
+var KafkaBrokerList = []string{"localhost:9092"}
 
 func initializeTopics() []string {
    

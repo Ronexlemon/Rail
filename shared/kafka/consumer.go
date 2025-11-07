@@ -31,29 +31,47 @@ func NewKafkaConsumer(brokerURL,topic,groupID string)*KafkaConsumer{
 }
 
 
-func (c *KafkaConsumer) Consume(ctx context.Context,handler func(key,value[]byte)){
-	for{
-		m, err := c.reader.FetchMessage(ctx)
+// func (c *KafkaConsumer) Consume(ctx context.Context,handler func(key,value[]byte)){
+// 	for{
+// 		m, err := c.reader.FetchMessage(ctx)
 
-		if err !=nil{
-			if err == context.Canceled{
-				log.Printf(" Kafka consumer for Topic [%s] stoped",c.topic)
-			return
+// 		if err !=nil{
+// 			if err == context.Canceled{
+// 				log.Printf(" Kafka consumer for Topic [%s] stoped",c.topic)
+// 			return
 
-			}
-			//log.Printf("Kafka consumer error %v",err)
-			continue
+// 			}
+// 			//log.Printf("Kafka consumer error %v",err)
+// 			continue
 			
-		}
-		log.Printf("Received message on [%s]: key= %s value = %s",c.topic,string(m.Key),string(m.Value))
+// 		}
+// 		log.Printf("Received message on [%s]: key= %s value = %s",c.topic,string(m.Key),string(m.Value))
 
-		//Process the message
-		handler(m.Key,m.Value)
+// 		//Process the message
+// 		handler(m.Key,m.Value)
 
-		if err := c.reader.CommitMessages(ctx,m); err !=nil{
-			log.Printf("Failed to commit message %v", err)
-		}
-	}
+// 		if err := c.reader.CommitMessages(ctx,m); err !=nil{
+// 			log.Printf("Failed to commit message %v", err)
+// 		}
+// 	}
+// }
+
+func (c *KafkaConsumer) Consume(ctx context.Context, handler func(key, value []byte)) {
+    for {
+        m, err := c.reader.ReadMessage(ctx)
+        if err != nil {
+            if err == context.Canceled {
+                log.Printf("Kafka consumer stopped for topic [%s]", c.topic)
+                return
+            }
+            log.Printf("Kafka consumer error: %v", err)
+            time.Sleep(time.Second)
+            continue
+        }
+
+        log.Printf("Received message on [%s]: key=%s value=%s", c.topic, string(m.Key), string(m.Value))
+        handler(m.Key, m.Value)
+    }
 }
 
 func (c *KafkaConsumer) Close() error{

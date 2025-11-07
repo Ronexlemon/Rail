@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	"github.com/ronexlemon/rail/micro-services/business-service/configs"
+	"github.com/ronexlemon/rail/micro-services/wallet-service/configs"
 	"github.com/ronexlemon/rail/shared/kafka"
 	"github.com/ronexlemon/rail/shared/kafka/topics"
 )
