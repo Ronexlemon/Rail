@@ -9,5 +9,5 @@ import (
 func main(){
 	fmt.Println("TRANSACTION SERVICE .......")
 	events.ConsumeRegister()
-	select{}
+	//select{}
 }

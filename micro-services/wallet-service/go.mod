@@ -9,4 +9,5 @@ require (
 	github.com/pierrec/lz4/v4 v4.1.15 // indirect
 	github.com/segmentio/kafka-go v0.4.49 // indirect
 	github.com/steebchen/prisma-client-go v0.47.0 // indirect
+	github.com/stretchr/testify v1.10.0 // indirect
 )

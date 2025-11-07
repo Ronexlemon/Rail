@@ -11,5 +11,6 @@ generator db{
 
 model Business{
     id    String @id @default(cuid())
+    name String
    
 }
