@@ -186,6 +186,50 @@ services:
     networks:
       - go_network
 
+#------------------------
+# Report
+#------------------------
+  report-service:
+    build:
+      context: .
+      dockerfile: ./micro-services/report-service/Dockerfile
+    container_name: report-service
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - kafka
+    environment:
+      SERVICE_NAME: report-service
+      SERVICE_PORT: 8087
+      DATABASE_URL: postgres://admin:admin@postgres:5432/main?sslmode=disable
+      KAFKA_BROKERS: kafka:9092
+    ports:
+      - "8087:8087"
+    networks:
+      - go_network
+
+
+#--------------------------
+# Compliance
+#--------------------------
+  compliance-service:
+    build:
+      context: .
+      dockerfile: ./micro-services/compliance-service/Dockerfile
+    container_name: compliance-service
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - kafka
+    environment:
+      SERVICE_NAME: compliance-service
+      SERVICE_PORT: 8088
+      DATABASE_URL: postgres://admin:admin@postgres:5432/main?sslmode=disable
+      KAFKA_BROKERS: kafka:9092
+    ports:
+      - "8088:8088"
+    networks:
+      - go_network
 # -------------------------
 # Volumes & Networks
 # -------------------------

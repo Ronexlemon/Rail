@@ -10,6 +10,22 @@ generator db{
 
 
 model Business{
-    id    String @id @default(cuid())
-   
+    id    String @id @default(uuid())
+    businessId  String
+    customerWalletId String
+    settlementId String?
+    amount Float
+    currency  String
+    status TxStatus @default(PENDING)
+    txHash String?
+    network  String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+enum TxStatus {
+    PENDING
+    SUCCESS
+    FAILED
+    SETTLED
 }
