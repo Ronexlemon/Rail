@@ -10,31 +10,33 @@ generator db{
 
 
 model Business{
-    id    String @id @default(cuid())
+    id    String @id @default(uuid())
     name  String
-    email String @unique
-    businessId String
+    email String 
+    apiKey  String? @unique
+    secretKey  String? @unique
+    businessId String  //from Auth Service (user.id)
     registrationNo String
-    kycStatus KycStatus @default(PENDING)
-    verifiedAt DateTime?
-    walletId   String?  //Linked to Wallet service
+    status BusinessStatus @default(PENDING)
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 }
 
 model BusinessDocument {
     id   String  @id  @default(uuid())
-    businessId  String
+    businessId  String 
     documentUrl  String
     docType  String
     verified  Boolean  @default(false)
     createdAt  DateTime  @default(now())
 }
 
-enum KycStatus {
+enum BusinessStatus {
     PENDING
     VERIFIED
-    REJECTED
+    ACTIVE
+    SUSPENDED
+    
 }
 
 //include virtual accounts

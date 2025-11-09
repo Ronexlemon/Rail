@@ -22,12 +22,14 @@ func NewBusinessRepository() *BusinessRepository {
 }
 
 // CreateBusiness creates a new business user
-func (r *BusinessRepository) CreateBusiness(email, companyReg ,name string) (*db.UserModel, error) {
+func (r *BusinessRepository) CreateBusiness(email ,name string) (*db.UserModel, error) {
+// 	passwordHash  String
+//   role  Role 
+//   email      String   @unique
 	user, err := r.client.User.CreateOne(
-		db.User.Name.Set(name),         
-		db.User.Email.Set(email),        
-		db.User.CompanyReg.Set(companyReg), 
-		db.User.Type.Set(db.RoleBusiness), 
+		db.User.PasswordHash.Set(name),         
+		db.User.Role.Set("BUSINESS"),        
+		db.User.Email.Set(email),
 	).Exec(r.context)
 
 	if err != nil {

@@ -9,30 +9,20 @@ generator db{
 
 
 
-model Wallet{
+model BusinessVerification{
     id    String @id @default(uuid())
-    ownerType  OwnerType 
-    ownerId   String
-    currency  String 
+    businessId String  // from Business Service
+    documentUrl  String
+    status    VerificationStatus
+    reviewedBy String?
     createdAt DateTime @default(now())
     updatedAt  DateTime  @updatedAt
 }
 
-model WalletAddress{
-    id  String  @id  @default(uuid())
-    walletId  String
-    network Network
-    address  String @unique
-    privateKey  String 
-    createdAt DateTime  @default(now())
-}
-enum OwnerType {
-    BUSINESS
-    CUSTOMER
+enum VerificationStatus {
+    PENDING
+    APPROVED
+    REJECTED
+
 }
 
-enum Network {
-    EVM
-    SOLANA
-    TRON
-}

@@ -26,7 +26,7 @@ func (h *BusinessHandler) RegisterBusinessHandler(w http.ResponseWriter, r *http
 		http.Error(w,"Invalid Request body",http.StatusBadRequest)
 		return
 	}
-	user, err := h.service.RegisterBusiness(req.Email,req.CompanyReg,req.name)
+	user, err := h.service.RegisterBusiness(req.Email,req.Pass)
 	if err !=nil{
 		http.Error(w,err.Error(),http.StatusInternalServerError)
 		return

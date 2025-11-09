@@ -12,6 +12,8 @@ github.com/ronexlemon/rail/shared v0.0.0-20251107222026-a1015f0617da h1:EoOB1e3T
 github.com/ronexlemon/rail/shared v0.0.0-20251107222026-a1015f0617da/go.mod h1:TBkBRc+9quJFcang8/6qi1L7L/QZyHmCzGq00n5Cp+4=
 github.com/segmentio/kafka-go v0.4.49 h1:GJiNX1d/g+kG6ljyJEoi9++PUMdXGAxb7JGPiDCuNmk=
 github.com/segmentio/kafka-go v0.4.49/go.mod h1:Y1gn60kzLEEaW28YshXyk2+VCUKbJ3Qr6DrnT3i4+9E=
+github.com/steebchen/prisma-client-go v0.47.0 h1:mKelgkcGPcIardjTP5diGq6hvnueQc/DYEyQ+6uZ0/E=
+github.com/steebchen/prisma-client-go v0.47.0/go.mod h1:i1B0PEaE+BUcBUiwvd9drWpyMG/zNYMRrD5MancMf2I=
 github.com/stretchr/testify v1.10.0 h1:Xv5erBjTwe/5IxqUQTdXv5kgmIvbHo3QQyRwhJsOfJA=
 github.com/stretchr/testify v1.10.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
 github.com/xdg-go/pbkdf2 v1.0.0 h1:Su7DPu48wXMwC3bs7MCNG+z4FhcyEuz5dlvchbq0B0c=

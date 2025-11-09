@@ -9,30 +9,15 @@ datasource db {
 
 model User {
   id         String   @id @default(uuid())
-  name      String
-  passwaordHash  String
+  
+  passwordHash  String
+  role  Role 
   email      String   @unique
-  businessId String   //linked logically to Business services   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model ApiKey{
-  id    String  @id @default(uuid())  
-  businessId String
-  apiKey     String @unique
-  secretKey  String
-  role      Role 
-  status    ApiKeyStatus @default(ACTIVE)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
 
-enum ApiKeyStatus {
-   ACTIVE
-   REVOKED
-   PENDING
-}
 enum Role {
     ADMIN
     BUSINESS

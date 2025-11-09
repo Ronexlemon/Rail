@@ -1,32 +1,38 @@
-datasource db{
-        provider = "postgres"
-        url = env("DATABASE_URL")
+datasource db {
+    provider = "postgres"
+    url      = env("DATABASE_URL")
 }
 
-generator db{
+generator db {
     provider = "go run github.com/steebchen/prisma-client-go"
 }
 
+model Wallet {
+    id         String          @id @default(uuid())
+    businessId String          // from Business Service
+    customerId String?         // from Business Customer Service (if end-user)
+    type       WalletType
+    createdAt  DateTime        @default(now())
+    updatedAt  DateTime        @updatedAt
+    addresses  WalletAddress[] // One-to-many relationship
 
-
-model Wallet{
-    id    String @id @default(uuid())
-    ownerType  OwnerType 
-    ownerId   String
-    currency  String 
-    createdAt DateTime @default(now())
-    updatedAt  DateTime  @updatedAt
+    @@index([businessId])
+    @@index([customerId])
 }
 
-model WalletAddress{
-    id  String  @id  @default(uuid())
+model WalletAddress {
+    id        String  @id @default(uuid())
     walletId  String
-    network Network
-    address  String @unique
-    privateKey  String 
-    createdAt DateTime  @default(now())
+    network   Network
+    address   String  @unique
+    privateKey String
+    createdAt DateTime @default(now())
+    wallet   Wallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+    @@index([walletId])
 }
-enum OwnerType {
+
+enum WalletType {
     BUSINESS
     CUSTOMER
 }

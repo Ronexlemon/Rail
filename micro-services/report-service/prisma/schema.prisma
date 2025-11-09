@@ -1,38 +1,42 @@
-datasource db{
-        provider = "postgres"
-        url = env("DATABASE_URL")
+datasource db {
+    provider = "postgres"
+    url      = env("DATABASE_URL")
 }
 
-generator db{
+generator db {
     provider = "go run github.com/steebchen/prisma-client-go"
 }
 
+model Report {
+    id               String      @id @default(uuid())
+    businessId       String      // logical link to Business Service
+    customerWalletId String?     // optional, for customer-specific reports
+    reportType       ReportType  // type of report (transactions, settlements, summary)
+    periodStart      DateTime    // start date for the report
+    periodEnd        DateTime    // end date for the report
+    transactionIds   String[]    // optional, transactions included in the report
+    settlementIds    String[]    // optional, settlements included in the report
+    generatedAt      DateTime    @default(now()) // when the report was generated
+    status           ReportStatus @default(PENDING)
+    fileUrl          String?     // optional URL if report is exported (PDF, CSV, etc.)
+    createdAt        DateTime    @default(now())
+    updatedAt        DateTime    @updatedAt
 
-
-model Wallet{
-    id    String @id @default(uuid())
-    ownerType  OwnerType 
-    ownerId   String
-    currency  String 
-    createdAt DateTime @default(now())
-    updatedAt  DateTime  @updatedAt
+    @@index([businessId])
+    @@index([customerWalletId])
+    @@index([status])
+    @@index([reportType])
 }
 
-model WalletAddress{
-    id  String  @id  @default(uuid())
-    walletId  String
-    network Network
-    address  String @unique
-    privateKey  String 
-    createdAt DateTime  @default(now())
-}
-enum OwnerType {
-    BUSINESS
-    CUSTOMER
+enum ReportType {
+    TRANSACTIONS
+    SETTLEMENTS
+    SUMMARY
 }
 
-enum Network {
-    EVM
-    SOLANA
-    TRON
+enum ReportStatus {
+    PENDING
+    PROCESSING
+    COMPLETED
+    FAILED
 }

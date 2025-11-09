@@ -1,29 +1,32 @@
-datasource db{
-        provider = "postgres"
-        url = env("DATABASE_URL")
+datasource db {
+    provider = "postgres"
+    url      = env("DATABASE_URL")
 }
 
-generator db{
+generator db {
     provider = "go run github.com/steebchen/prisma-client-go"
 }
 
+model Settlement {
+    id               String    @id @default(uuid())
+    businessId       String    // logical link to Business Service
+    initiatedByWalletId String? // nullable: can be business wallet or customer wallet
+    totalAmount      Float     // total settled amount in base currency
+    currency         String
+    status           SettlementStatus @default(PENDING)
+    transactionIds   String[]  // array of transaction IDs from Transaction Service
+    settledAt        DateTime? // timestamp when settlement is completed
+    createdAt        DateTime  @default(now())
+    updatedAt        DateTime  @updatedAt
 
-
-model Business{
-    id    String @id @default(uuid())
-    transactionId String
-    businessId  String
-    amount  Float
-    currency String
-    status  SettlementStatus @default(PENDING)
-    txHash String
-    createdAt  DateTime  @default(now())
-    updatedAt  DateTime  @updatedAt
-   
+    @@index([businessId])
+    @@index([initiatedByWalletId])
+    @@index([status])
 }
 
 enum SettlementStatus {
     PENDING
+    PROCESSING
     COMPLETED
     FAILED
 }

@@ -3,7 +3,7 @@
 # -----------------------
 GO := go
 # Path to the Go file for Kafka topic registration
-TOPIC_CMD := ./shared/kafka/topics/cmd/register.go
+TOPIC_CMD := ./kafka/topics/cmd/register.go
 # Prisma client command (assuming this is the path/module used to invoke prisma commands)
 PRISMA_CMD := github.com/steebchen/prisma-client-go
 PRISMA_GENERATE_CMD := github.com/steebchen/prisma-client-go 

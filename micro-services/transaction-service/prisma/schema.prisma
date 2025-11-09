@@ -1,26 +1,31 @@
-datasource db{
-        provider = "postgres"
-        url = env("DATABASE_URL")
+datasource db {
+    provider = "postgres"
+    url      = env("DATABASE_URL")
 }
 
-generator db{
+generator db {
     provider = "go run github.com/steebchen/prisma-client-go"
 }
 
+model Transaction {
+    id               String   @id @default(uuid())
+    businessId       String   // logical link to Business Service
+    customerWalletId String?  // nullable for external transfers
+    externalAddress  String?  // external wallet address if not in Wallet Service
+    settlementId     String?  // optional, for settlements
+    amount           Float
+    currency         String
+    status           TxStatus @default(PENDING)
+    txHash           String?  // for on-chain transactions
+    network          Network? // nullable for off-chain transactions
+    type             TxType   // direction/type of transaction
+    createdAt        DateTime @default(now())
+    updatedAt        DateTime @updatedAt
 
-
-model Business{
-    id    String @id @default(uuid())
-    businessId  String
-    customerWalletId String
-    settlementId String?
-    amount Float
-    currency  String
-    status TxStatus @default(PENDING)
-    txHash String?
-    network  String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    @@index([businessId])
+    @@index([customerWalletId])
+    @@index([settlementId])
+    @@index([externalAddress])
 }
 
 enum TxStatus {
@@ -28,4 +33,18 @@ enum TxStatus {
     SUCCESS
     FAILED
     SETTLED
+}
+
+enum Network {
+    EVM
+    SOLANA
+    TRON
+}
+
+enum TxType {
+    BUSINESS_TO_CUSTOMER
+    CUSTOMER_TO_BUSINESS
+    INTERNAL
+    EXTERNAL_OUT  // sent to an external wallet
+    EXTERNAL_IN   // received from an external wallet
 }

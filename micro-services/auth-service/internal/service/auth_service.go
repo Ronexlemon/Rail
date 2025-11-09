@@ -16,10 +16,10 @@ func NewBusinessService(repo *repository.BusinessRepository)*BusinessService{
 	return &BusinessService{repo: repo}
 }
 
-func(s *BusinessService) RegisterBusiness(email,companyReg,name string)(*db.UserModel,error){
+func(s *BusinessService) RegisterBusiness(email,pass string)(*db.UserModel,error){
 
-	if email == "" || companyReg ==""{
+	if email == "" || pass == ""{
 		return nil,fmt.Errorf("email and companyReg are required")
 	}
-	return s.repo.CreateBusiness(email,companyReg,name)
+	return s.repo.CreateBusiness(email,pass)
 }

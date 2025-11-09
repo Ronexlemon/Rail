@@ -1,16 +1,47 @@
-datasource db{
-        provider = "postgres"
-        url = env("DATABASE_URL")
+datasource db {
+    provider = "postgres"
+    url      = env("DATABASE_URL")
 }
 
-generator db{
+generator db {
     provider = "go run github.com/steebchen/prisma-client-go"
 }
 
+model Notification {
+    id               String       @id @default(uuid())
+    recipientWalletId String?      // optional, customer or business wallet
+    recipientType    RecipientType // who receives it (BUSINESS, CUSTOMER)
+    title            String
+    message          String
+    type             NotificationType // type of notification
+    referenceId      String?      // optional, logical link to transaction, settlement, or report
+    referenceType    ReferenceType? // what the referenceId points to
+    read             Boolean      @default(false)
+    sentAt           DateTime?    // timestamp when notification is sent
+    createdAt        DateTime     @default(now())
+    updatedAt        DateTime     @updatedAt
 
+    @@index([recipientWalletId])
+    @@index([recipientType])
+    @@index([read])
+    @@index([type])
+}
 
-model Business{
-    id    String @id @default(cuid())
-    name String
-   
+enum RecipientType {
+    BUSINESS
+    CUSTOMER
+}
+
+enum NotificationType {
+    TRANSACTION_ALERT
+    SETTLEMENT_ALERT
+    REPORT_READY
+    SYSTEM_ALERT
+}
+
+enum ReferenceType {
+    TRANSACTION
+    SETTLEMENT
+    REPORT
+    NONE
 }
