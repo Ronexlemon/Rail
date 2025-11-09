@@ -18,11 +18,6 @@ var KafkaBrokerList = []string{"localhost:9092"}
 
 func initializeTopics() []string {
 
-	
-	
-	
-	
-	
     authTopics := []string{TopicBusinessRegister, TopicBusinessVerified,TopicBusinessApiKeyGenerated,TopicBusinessapiKeyRevoked,TopicBusinessDeactivated}
     businessTopics := []string{TopicBusinessRegistered, TopicBusinessPendingVerification,TopicBusinessWalletLinked,TopicBusinessSuspended,TopicCustomerCreated,TopicCustomerDeactivated,TopicCustomerDeactivated}
     transactionTopics := []string{TopicTransactionInitiated,TopicTransactionApproved, TopicTransactionCancelled, TopicTransactionFailed,TopicTransactionValidated } // Corrected name to be plural
