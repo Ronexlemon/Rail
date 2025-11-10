@@ -16,7 +16,7 @@ model Business{
     apiKey  String? @unique
     secretKey  String? @unique
     businessId String  //from Auth Service (user.id)
-    registrationNo String
+   
     status BusinessStatus @default(PENDING)
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -26,6 +26,7 @@ model BusinessDocument {
     id   String  @id  @default(uuid())
     businessId  String 
     documentUrl  String
+     registrationNo String
     docType  String
     verified  Boolean  @default(false)
     createdAt  DateTime  @default(now())

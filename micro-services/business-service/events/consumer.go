@@ -11,9 +11,21 @@ import (
 	"time"
 
 	"github.com/ronexlemon/rail/micro-services/business-service/configs"
+	"github.com/ronexlemon/rail/micro-services/business-service/internal/repository"
+	"github.com/ronexlemon/rail/micro-services/business-service/internal/service"
 	"github.com/ronexlemon/rail/shared/kafka"
 	"github.com/ronexlemon/rail/shared/kafka/topics"
 )
+type UserModel struct {
+	ID        string    `json:"id"`
+	Name      string `json:"name"`
+	Email     string    `json:"email"`
+	Role     string `json:"role"`
+	Password  string    `json:"-"` // hidden in JSON
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
 
 func ConsumeRegister() {
 	brokerURL := configs.GetEnv("KAFKA_BROKERS", "kafka:9092")
@@ -42,10 +54,10 @@ func ConsumeRegister() {
 }
 
 func startConsumer(ctx context.Context, brokerURL, groupID string) error {
-	c := kafka.NewKafkaConsumer(brokerURL, topics.TopicUserCreated, groupID)
+	c := kafka.NewKafkaConsumer(brokerURL, topics.TopicBusinessRegistered, groupID)
 	defer c.Close()
 
-	log.Printf("Kafka consumer connected (topic=%s, group=%s)", topics.TopicUserCreated, groupID)
+	log.Printf("Kafka consumer connected (topic=%s, group=%s)", topics.TopicBusinessRegistered, groupID)
 
 	errChan := make(chan error, 1)
 	go func() {
@@ -57,16 +69,20 @@ func startConsumer(ctx context.Context, brokerURL, groupID string) error {
 		}()
 
 		c.Consume(ctx, func(key, value []byte) {
-			log.Printf("📨 Processing event [user-created] Key=%s Value=%s", string(key), string(value))
+			log.Printf(" Processing event [user-created] Key=%s Value=%s", string(key), string(value))
 
-			var payload map[string]any
+			var payload UserModel
 			if err := json.Unmarshal(value, &payload); err != nil {
 				log.Printf("Failed to unmarshal payload: %v", err)
 				return
 			}
 
 			// TODO: process payload here (DB updates, etc.) just a place holder for producer
-			PublishEvent(string(key),value)
+            
+			//PublishEvent(string(key),value)
+			repo:= repository.NewBusinessRepository()
+			service:= service.NewBusinesssService(repo)
+			service.CreateBusinessService(payload.Name,payload.Email,payload.ID)
 		})
 	}()
 
