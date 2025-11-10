@@ -45,7 +45,7 @@ func startConsumer(ctx context.Context, brokerURL, groupID string) error {
 	c := kafka.NewKafkaConsumer(brokerURL, topics.TopicWalletCreated, groupID)
 	defer c.Close()
 
-	log.Printf("Kafka consumer connected (topic=%s, group=%s)", topics.TopicWalletCreated, groupID)
+	log.Printf("Kafka consumer connected (topic=%s, group=%s)", topics.TopicBusinessRegister, groupID)
 
 	errChan := make(chan error, 1)
 	go func() {

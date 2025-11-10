@@ -80,9 +80,10 @@ func startConsumer(ctx context.Context, brokerURL, groupID string) error {
 			// TODO: process payload here (DB updates, etc.) just a place holder for producer
             
 			//PublishEvent(string(key),value)
+			log.Printf(" Result] Key=%s Value=%s",payload.Name, payload.Email)
 			repo:= repository.NewBusinessRepository()
 			service:= service.NewBusinesssService(repo)
-			service.CreateBusinessService(payload.Name,payload.Email,payload.ID)
+			service.CreateBusinessService("RonexRail",payload.Email,payload.ID)
 		})
 	}()
 

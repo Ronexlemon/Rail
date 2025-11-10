@@ -1,10 +1,10 @@
+# version 3.9
 #version: '3.9'
 
 services:
 
-  # -------------------------
-  # Postgres
-  # -------------------------
+  
+
   postgres:
     image: postgres:16
     container_name: postgres
@@ -20,9 +20,16 @@ services:
     networks:
       - go_network
 
-  # -------------------------
-  # Zookeeper
-  # -------------------------
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    networks:
+      - go_network
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     container_name: zookeeper
@@ -34,9 +41,6 @@ services:
     networks:
       - go_network
 
-  # -------------------------
-  # Kafka
-  # -------------------------
   kafka:
     image: confluentinc/cp-kafka:7.5.0
     container_name: kafka
@@ -54,9 +58,6 @@ services:
     networks:
       - go_network
 
-  # -------------------------
-  # Auth Service
-  # -------------------------
   auth-service:
     build:
       context: .
@@ -69,16 +70,13 @@ services:
     environment:
       SERVICE_NAME: auth-service
       SERVICE_PORT: 8081
-      DATABASE_URL: postgres://admin:admin@postgres:5432/main?sslmode=disable
+      DATABASE_URL: postgres://admin:admin@postgres:5432/main?sslmode=disable&schema=auth
       KAFKA_BROKERS: kafka:9092
     ports:
       - "8081:8081"
     networks:
       - go_network
 
-  # -------------------------
-  # Transaction Service
-  # -------------------------
   transaction-service:
     build:
       context: .
@@ -91,16 +89,13 @@ services:
     environment:
       SERVICE_NAME: transaction-service
       SERVICE_PORT: 8082
-      DATABASE_URL: postgres://admin:admin@postgres:5432/main?sslmode=disable
+      DATABASE_URL: postgres://admin:admin@postgres:5432/main?sslmode=disable&schema=transaction
       KAFKA_BROKERS: kafka:9092
     ports:
       - "8082:8082"
     networks:
       - go_network
 
-  # -------------------------
-  # Wallet Service
-  # -------------------------
   wallet-service:
     build:
       context: .
@@ -113,16 +108,13 @@ services:
     environment:
       SERVICE_NAME: wallet-service
       SERVICE_PORT: 8083
-      DATABASE_URL: postgres://admin:admin@postgres:5432/main?sslmode=disable
+      DATABASE_URL: postgres://admin:admin@postgres:5432/main?sslmode=disable&schema=wallet
       KAFKA_BROKERS: kafka:9092
     ports:
       - "8083:8083"
     networks:
       - go_network
 
-  # -------------------------
-  # Settlement Service
-  # -------------------------
   settlement-service:
     build:
       context: .
@@ -135,16 +127,13 @@ services:
     environment:
       SERVICE_NAME: settlement-service
       SERVICE_PORT: 8084
-      DATABASE_URL: postgres://admin:admin@postgres:5432/main?sslmode=disable
+      DATABASE_URL: postgres://admin:admin@postgres:5432/main?sslmode=disable&schema=settlement
       KAFKA_BROKERS: kafka:9092
     ports:
       - "8084:8084"
     networks:
       - go_network
 
-  # -------------------------
-  # Business Service
-  # -------------------------
   business-service:
     build:
       context: .
@@ -157,16 +146,13 @@ services:
     environment:
       SERVICE_NAME: business-service
       SERVICE_PORT: 8085
-      DATABASE_URL: postgres://admin:admin@postgres:5432/main?sslmode=disable
+      DATABASE_URL: postgres://admin:admin@postgres:5432/main?sslmode=disable&schema=business
       KAFKA_BROKERS: kafka:9092
     ports:
       - "8085:8085"
     networks:
       - go_network
 
-  # -------------------------
-  # Notification Service
-  # -------------------------
   notification-service:
     build:
       context: .
@@ -179,16 +165,13 @@ services:
     environment:
       SERVICE_NAME: notification-service
       SERVICE_PORT: 8086
-      DATABASE_URL: postgres://admin:admin@postgres:5432/main?sslmode=disable
+      DATABASE_URL: postgres://admin:admin@postgres:5432/main?sslmode=disable&schema=notification
       KAFKA_BROKERS: kafka:9092
     ports:
       - "8086:8086"
     networks:
       - go_network
 
-#------------------------
-# Report
-#------------------------
   report-service:
     build:
       context: .
@@ -201,17 +184,13 @@ services:
     environment:
       SERVICE_NAME: report-service
       SERVICE_PORT: 8087
-      DATABASE_URL: postgres://admin:admin@postgres:5432/main?sslmode=disable
+      DATABASE_URL: postgres://admin:admin@postgres:5432/main?sslmode=disable&schema=report
       KAFKA_BROKERS: kafka:9092
     ports:
       - "8087:8087"
     networks:
       - go_network
 
-
-#--------------------------
-# Compliance
-#--------------------------
   compliance-service:
     build:
       context: .
@@ -224,15 +203,13 @@ services:
     environment:
       SERVICE_NAME: compliance-service
       SERVICE_PORT: 8088
-      DATABASE_URL: postgres://admin:admin@postgres:5432/main?sslmode=disable
+      DATABASE_URL: postgres://admin:admin@postgres:5432/main?sslmode=disable&schema=compliance
       KAFKA_BROKERS: kafka:9092
     ports:
       - "8088:8088"
     networks:
       - go_network
-# -------------------------
-# Volumes & Networks
-# -------------------------
+
 volumes:
   postgres_data:
 

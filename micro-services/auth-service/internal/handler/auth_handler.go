@@ -21,6 +21,7 @@ func NewBusinessHandler(service *service.BusinessService)*BusinessHandler{
 
 func (h *BusinessHandler) RegisterBusinessHandler(w http.ResponseWriter, r *http.Request){
 	var req RegistrationReq
+	
 
 	if err:= json.NewDecoder(r.Body).Decode(&req); err !=nil{
 		http.Error(w,"Invalid Request body",http.StatusBadRequest)

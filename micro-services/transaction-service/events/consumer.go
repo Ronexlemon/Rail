@@ -13,7 +13,7 @@ func ConsumeRegister() {
 	brokerURL := configs.GetEnv("KAFKA_BROKERS", "kafka:9092")
 	groupID := "business-service-group" 
 
-	consumer := kafka.NewKafkaConsumer(brokerURL, topics.TopicUserCreated, groupID)
+	consumer := kafka.NewKafkaConsumer(brokerURL, topics.TopicBusinessDeactivated, groupID)
 
 	ctx := context.Background()
 	go consumer.Consume(ctx, func(key, value []byte) {

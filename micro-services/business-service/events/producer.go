@@ -13,7 +13,7 @@ func PublishEvent(key string, value interface{}) {
     brokerUrl := configs.GetEnv("KAFKA_BROKERS", "kafka:9092")
     
     
-    producer := kafka.NewKafkaProducer(brokerUrl, topics.TopicWalletCreated)
+    producer := kafka.NewKafkaProducer(brokerUrl, topics.TopicBusinessRegistered)
 
     // Convert value to JSON
     jsonValue, err := json.Marshal(value)

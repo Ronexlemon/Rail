@@ -19,7 +19,7 @@ func NewBusinessService(repo *repository.BusinessRepository)*BusinessService{
 func(s *BusinessService) RegisterBusiness(email,pass string)(*db.UserModel,error){
 
 	if email == "" || pass == ""{
-		return nil,fmt.Errorf("email and companyReg are required")
+		return nil,fmt.Errorf("email and pass are required")
 	}
 	return s.repo.CreateBusiness(email,pass)
 }

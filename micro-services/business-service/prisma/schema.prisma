@@ -15,8 +15,7 @@ model Business{
     email String 
     apiKey  String? @unique
     secretKey  String? @unique
-    businessId String  //from Auth Service (user.id)
-   
+    //businessId String  //from Auth Service (user.id)
     status BusinessStatus @default(PENDING)
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
