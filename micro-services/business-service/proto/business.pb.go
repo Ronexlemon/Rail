@@ -4,7 +4,7 @@
 // 	protoc        v6.33.0
 // source: proto/business.proto
 
-package proto
+package business_service
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -129,7 +129,7 @@ var File_proto_business_proto protoreflect.FileDescriptor
 
 const file_proto_business_proto_rawDesc = "" +
 	"\n" +
-	"\x14proto/business.proto\x12\bbusiness\"R\n" +
+	"\x14proto/business.proto\x12\x05proto\"R\n" +
 	"\x18GetBusinessByKeysRequest\x12\x17\n" +
 	"\aapi_key\x18\x01 \x01(\tR\x06apiKey\x12\x1d\n" +
 	"\n" +
@@ -137,9 +137,9 @@ const file_proto_business_proto_rawDesc = "" +
 	"\x19GetBusinessByKeysResponse\x12\x1f\n" +
 	"\vbusiness_id\x18\x01 \x01(\tR\n" +
 	"businessId\x12\x16\n" +
-	"\x06status\x18\x02 \x01(\tR\x06status2q\n" +
-	"\x0fBusinessService\x12^\n" +
-	"\x11GetBusinessByKeys\x12\".business.GetBusinessByKeysRequest\x1a#.business.GetBusinessByKeysResponse\"\x00BHZFgithub.com/ronexlemon/rail/micro-services/business-service/proto;protob\x06proto3"
+	"\x06status\x18\x02 \x01(\tR\x06status2k\n" +
+	"\x0fBusinessService\x12X\n" +
+	"\x11GetBusinessByKeys\x12\x1f.proto.GetBusinessByKeysRequest\x1a .proto.GetBusinessByKeysResponse\"\x00B<Z:github.com/ronexlemon/rail/micro-services/business-serviceb\x06proto3"
 
 var (
 	file_proto_business_proto_rawDescOnce sync.Once
@@ -155,12 +155,12 @@ func file_proto_business_proto_rawDescGZIP() []byte {
 
 var file_proto_business_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_proto_business_proto_goTypes = []any{
-	(*GetBusinessByKeysRequest)(nil),  // 0: business.GetBusinessByKeysRequest
-	(*GetBusinessByKeysResponse)(nil), // 1: business.GetBusinessByKeysResponse
+	(*GetBusinessByKeysRequest)(nil),  // 0: proto.GetBusinessByKeysRequest
+	(*GetBusinessByKeysResponse)(nil), // 1: proto.GetBusinessByKeysResponse
 }
 var file_proto_business_proto_depIdxs = []int32{
-	0, // 0: business.BusinessService.GetBusinessByKeys:input_type -> business.GetBusinessByKeysRequest
-	1, // 1: business.BusinessService.GetBusinessByKeys:output_type -> business.GetBusinessByKeysResponse
+	0, // 0: proto.BusinessService.GetBusinessByKeys:input_type -> proto.GetBusinessByKeysRequest
+	1, // 1: proto.BusinessService.GetBusinessByKeys:output_type -> proto.GetBusinessByKeysResponse
 	1, // [1:2] is the sub-list for method output_type
 	0, // [0:1] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name

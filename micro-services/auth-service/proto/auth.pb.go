@@ -137,7 +137,7 @@ var File_proto_auth_proto protoreflect.FileDescriptor
 
 const file_proto_auth_proto_rawDesc = "" +
 	"\n" +
-	"\x10proto/auth.proto\x12\x04auth\"M\n" +
+	"\x10proto/auth.proto\x12\x05proto\"M\n" +
 	"\x13AuthenticateRequest\x12\x17\n" +
 	"\aapi_key\x18\x01 \x01(\tR\x06apiKey\x12\x1d\n" +
 	"\n" +
@@ -146,9 +146,9 @@ const file_proto_auth_proto_rawDesc = "" +
 	"\vbusiness_id\x18\x01 \x01(\tR\n" +
 	"businessId\x12\x16\n" +
 	"\x06status\x18\x02 \x01(\tR\x06status\x12\x14\n" +
-	"\x05valid\x18\x03 \x01(\bR\x05valid2V\n" +
-	"\vAuthService\x12G\n" +
-	"\fAuthenticate\x12\x19.auth.AuthenticateRequest\x1a\x1a.auth.AuthenticateResponse\"\x00BDZBgithub.com/ronexlemon/rail/micro-services/auth-service/proto;protob\x06proto3"
+	"\x05valid\x18\x03 \x01(\bR\x05valid2X\n" +
+	"\vAuthService\x12I\n" +
+	"\fAuthenticate\x12\x1a.proto.AuthenticateRequest\x1a\x1b.proto.AuthenticateResponse\"\x00B>Z<github.com/ronexlemon/rail/micro-services/auth-service/protob\x06proto3"
 
 var (
 	file_proto_auth_proto_rawDescOnce sync.Once
@@ -164,12 +164,12 @@ func file_proto_auth_proto_rawDescGZIP() []byte {
 
 var file_proto_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_proto_auth_proto_goTypes = []any{
-	(*AuthenticateRequest)(nil),  // 0: auth.AuthenticateRequest
-	(*AuthenticateResponse)(nil), // 1: auth.AuthenticateResponse
+	(*AuthenticateRequest)(nil),  // 0: proto.AuthenticateRequest
+	(*AuthenticateResponse)(nil), // 1: proto.AuthenticateResponse
 }
 var file_proto_auth_proto_depIdxs = []int32{
-	0, // 0: auth.AuthService.Authenticate:input_type -> auth.AuthenticateRequest
-	1, // 1: auth.AuthService.Authenticate:output_type -> auth.AuthenticateResponse
+	0, // 0: proto.AuthService.Authenticate:input_type -> proto.AuthenticateRequest
+	1, // 1: proto.AuthService.Authenticate:output_type -> proto.AuthenticateResponse
 	1, // [1:2] is the sub-list for method output_type
 	0, // [0:1] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name

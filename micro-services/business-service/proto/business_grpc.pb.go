@@ -4,7 +4,7 @@
 // - protoc             v6.33.0
 // source: proto/business.proto
 
-package proto
+package business_service
 
 import (
 	context "context"
@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BusinessService_GetBusinessByKeys_FullMethodName = "/business.BusinessService/GetBusinessByKeys"
+	BusinessService_GetBusinessByKeys_FullMethodName = "/proto.BusinessService/GetBusinessByKeys"
 )
 
 // BusinessServiceClient is the client API for BusinessService service.
@@ -108,7 +108,7 @@ func _BusinessService_GetBusinessByKeys_Handler(srv interface{}, ctx context.Con
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var BusinessService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "business.BusinessService",
+	ServiceName: "proto.BusinessService",
 	HandlerType: (*BusinessServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

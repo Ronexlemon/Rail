@@ -37,7 +37,10 @@ dbgenerate:
 .PHONY: protos
 protos:
 	@echo "🚀 Compiling gRPC proto files..."
-	protoc --go_out=$(PROTO_OUT) --go-grpc_out=$(PROTO_OUT) $(PROTO_DIR)/*.proto
+	protoc \
+		--go_out=. --go_opt=paths=source_relative \
+		--go-grpc_out=. --go-grpc_opt=paths=source_relative \
+		$(PROTO_DIR)/*.proto
 	@echo "✅ Proto compilation complete!"
 
 .PHONY: clean
