@@ -139,7 +139,7 @@ const file_proto_business_proto_rawDesc = "" +
 	"businessId\x12\x16\n" +
 	"\x06status\x18\x02 \x01(\tR\x06status2q\n" +
 	"\x0fBusinessService\x12^\n" +
-	"\x11GetBusinessByKeys\x12\".business.GetBusinessByKeysRequest\x1a#.business.GetBusinessByKeysResponse\"\x00B9Z7github.com/ronexlemon/rail/business-service/proto;protob\x06proto3"
+	"\x11GetBusinessByKeys\x12\".business.GetBusinessByKeysRequest\x1a#.business.GetBusinessByKeysResponse\"\x00BHZFgithub.com/ronexlemon/rail/micro-services/business-service/proto;protob\x06proto3"
 
 var (
 	file_proto_business_proto_rawDescOnce sync.Once

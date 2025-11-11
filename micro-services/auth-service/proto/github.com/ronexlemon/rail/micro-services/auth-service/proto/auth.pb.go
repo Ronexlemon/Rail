@@ -148,7 +148,7 @@ const file_proto_auth_proto_rawDesc = "" +
 	"\x06status\x18\x02 \x01(\tR\x06status\x12\x14\n" +
 	"\x05valid\x18\x03 \x01(\bR\x05valid2V\n" +
 	"\vAuthService\x12G\n" +
-	"\fAuthenticate\x12\x19.auth.AuthenticateRequest\x1a\x1a.auth.AuthenticateResponse\"\x00B5Z3github.com/ronexlemon/rail/auth-service/proto;protob\x06proto3"
+	"\fAuthenticate\x12\x19.auth.AuthenticateRequest\x1a\x1a.auth.AuthenticateResponse\"\x00BDZBgithub.com/ronexlemon/rail/micro-services/auth-service/proto;protob\x06proto3"
 
 var (
 	file_proto_auth_proto_rawDescOnce sync.Once

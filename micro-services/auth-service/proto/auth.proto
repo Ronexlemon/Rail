@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package auth;
-option go_package = "github.com/ronexlemon/rail/auth-service/proto;proto";
+option go_package = "github.com/ronexlemon/rail/micro-services/auth-service/proto;proto";
 
 
 service AuthService {
