@@ -8,7 +8,7 @@ import (
 
 	config "github.com/ronexlemon/rail/micro-services/auth-service/configs"
 	"github.com/ronexlemon/rail/micro-services/auth-service/database"
-	grpcserver "github.com/ronexlemon/rail/micro-services/auth-service/grpcServer"
+	grpcserver "github.com/ronexlemon/rail/micro-services/auth-service/grserver"
 	"github.com/ronexlemon/rail/micro-services/auth-service/internal/handler"
 	"github.com/ronexlemon/rail/micro-services/auth-service/internal/repository"
 	"github.com/ronexlemon/rail/micro-services/auth-service/internal/service"
@@ -36,7 +36,7 @@ func main() {
 	
 
 	// 4. Start gRPC server in a goroutine
-	go grpcserver.GrpcServer()
+	go grpcserver.ServerGrpc()
 
 	// 5. Start HTTP routes
 	http.HandleFunc("/register-business", h.RegisterBusinessHandler)

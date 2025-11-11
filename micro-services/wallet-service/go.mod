@@ -6,13 +6,10 @@ require (
 	github.com/blocto/solana-go-sdk v1.30.0
 	github.com/ethereum/go-ethereum v1.16.7
 	github.com/joho/godotenv v1.5.1
+	github.com/mr-tron/base58 v1.2.0
+	github.com/ronexlemon/rail/shared v0.0.0-20251111174808-0b7e73a834bd
 	github.com/shopspring/decimal v1.4.0
 	github.com/steebchen/prisma-client-go v0.47.0
-)
-
-require (
-	github.com/mr-tron/base58 v1.2.0
-	github.com/ronexlemon/rail/shared v0.0.0-20251110103216-1a612b50f282
 )
 
 require (

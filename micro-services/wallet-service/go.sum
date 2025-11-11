@@ -26,8 +26,8 @@ github.com/pierrec/lz4/v4 v4.1.15 h1:MO0/ucJhngq7299dKLwIMtgTfbkoSPF6AoMYDd8Q4q0
 github.com/pierrec/lz4/v4 v4.1.15/go.mod h1:gZWDp/Ze/IJXGXf23ltt2EXimqmTUXEy0GFuRQyBid4=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
-github.com/ronexlemon/rail/shared v0.0.0-20251110103216-1a612b50f282 h1:TkYyq0BHlcBqTVJqDsycfoHgj3cs24wtGF3BhUDpJT4=
-github.com/ronexlemon/rail/shared v0.0.0-20251110103216-1a612b50f282/go.mod h1:TBkBRc+9quJFcang8/6qi1L7L/QZyHmCzGq00n5Cp+4=
+github.com/ronexlemon/rail/shared v0.0.0-20251111174808-0b7e73a834bd h1:qjgcEedQXHN4NW2YWuKXtBKjPPTl/2RGhWi08dmlMpw=
+github.com/ronexlemon/rail/shared v0.0.0-20251111174808-0b7e73a834bd/go.mod h1:TBkBRc+9quJFcang8/6qi1L7L/QZyHmCzGq00n5Cp+4=
 github.com/segmentio/kafka-go v0.4.49 h1:GJiNX1d/g+kG6ljyJEoi9++PUMdXGAxb7JGPiDCuNmk=
 github.com/segmentio/kafka-go v0.4.49/go.mod h1:Y1gn60kzLEEaW28YshXyk2+VCUKbJ3Qr6DrnT3i4+9E=
 github.com/shopspring/decimal v1.4.0 h1:bxl37RwXBklmTi0C79JfXCEBD1cqqHt0bbgBAGFp81k=

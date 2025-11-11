@@ -9,7 +9,7 @@ import (
 	"github.com/ronexlemon/rail/micro-services/business-service/configs"
 	"github.com/ronexlemon/rail/micro-services/business-service/database"
 	"github.com/ronexlemon/rail/micro-services/business-service/events"
-	grpcserver "github.com/ronexlemon/rail/micro-services/business-service/grpcServer"
+	grserver "github.com/ronexlemon/rail/micro-services/business-service/grserver"
 	"github.com/ronexlemon/rail/micro-services/business-service/internal/handler"
 	"github.com/ronexlemon/rail/micro-services/business-service/internal/repository"
 	"github.com/ronexlemon/rail/micro-services/business-service/internal/service"
@@ -72,7 +72,7 @@ func main(){
 	// ---------------------------
 	// Start gRPC server
 	// ---------------------------
-	grpcserver.GrpcServer()
+	grserver.GrpServer()
 	// Keep main alive
 	select {}
 }

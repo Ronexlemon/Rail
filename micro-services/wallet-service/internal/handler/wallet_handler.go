@@ -42,7 +42,7 @@ func NewWalletHandler(service *service.WalletService)*WalletHandler{
 
 
 func (h *WalletHandler) CustomerWalletCreationHandler(w http.ResponseWriter, r *http.Request){
- var req CustomerWallet //has Customer_id in struct
+ //var req CustomerWallet //has Customer_id in struct
 
 
 }

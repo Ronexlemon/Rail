@@ -2,76 +2,49 @@ package middleware
 
 import (
 	"context"
+
+	"log"
 	"net/http"
 	"time"
-	"log"
 
-	businesspb "github.com/ronexlemon/rail/micro-services/business-service/proto"
+	proto "github.com/ronexlemon/rail/micro-services/auth-service/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-type BusinessInfoKey string
-
-type BusinessInfo struct {
-	BusinessID string
-	Status     string
-}
-
-// MiddlewareManager holds the persistent gRPC client
-type MiddlewareManager struct {
-	businessClient businesspb.BusinessServiceClient
-}
-
-// NewMiddlewareManager creates a persistent gRPC client connection
-func NewMiddlewareManager(businessAddr string) *MiddlewareManager {
-	conn, err := grpc.Dial(
-		businessAddr,
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithBlock(),
-		grpc.WithTimeout(5*time.Second), // initial dial timeout
-	)
+// AuthMiddleware returns an http.Handler that checks apiKey & secretKey via gRPC
+func AuthMiddleware(next http.Handler) http.Handler {
+	// Create gRPC client connection (could be global for efficiency)
+	conn, err := grpc.Dial("auth-service:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		log.Fatalf("Failed to connect to business-service: %v", err)
+		log.Fatalf("failed to connect to auth-service: %v", err)
 	}
+	client := proto.NewAuthServiceClient(conn)
 
-	client := businesspb.NewBusinessServiceClient(conn)
-
-	return &MiddlewareManager{
-		businessClient: client,
-	}
-}
-
-// AuthMiddleware returns a middleware using the persistent gRPC client
-func (m *MiddlewareManager) AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		apiKey := r.Header.Get("X-Api-Key")
 		secretKey := r.Header.Get("X-Secret-Key")
+
 		if apiKey == "" || secretKey == "" {
-			http.Error(w, "Missing API key or Secret key", http.StatusUnauthorized)
+			http.Error(w, "missing API keys", http.StatusUnauthorized)
 			return
 		}
 
-		// Use a short timeout for each request
-		callCtx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
+		// Call gRPC auth-service
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 		defer cancel()
 
-		resp, err := m.businessClient.GetBusinessByKeys(callCtx, &businesspb.GetBusinessByKeysRequest{
+		resp, err := client.GetBusinessByKeys(ctx, &proto.GetBusinessByKeysRequest{
 			ApiKey:    apiKey,
 			SecretKey: secretKey,
 		})
-		if err != nil {
-			http.Error(w, "Invalid API key or secret key", http.StatusUnauthorized)
+		if err != nil || resp.Status != "ACTIVE" {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
 
-		// Store business info in context
-		bizInfo := &BusinessInfo{
-			BusinessID: resp.BusinessId,
-			Status:     resp.Status,
-		}
-
-		ctx := context.WithValue(r.Context(), BusinessInfoKey("businessInfo"), bizInfo)
+		// Optionally attach business ID to context for downstream handlers
+		ctx = context.WithValue(r.Context(), "businessID", resp.BusinessId)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
