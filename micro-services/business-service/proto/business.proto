@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package business;
+option go_package = "github.com/ronexlemon/rail/business-service/proto;proto";
+
+service BusinessService {
+  rpc GetBusinessByKeys(GetBusinessByKeysRequest) returns (GetBusinessByKeysResponse) {}
+}
+
+message GetBusinessByKeysRequest {
+  string api_key = 1;
+  string secret_key = 2;
+}
+
+message GetBusinessByKeysResponse {
+  string business_id = 1;
+  string status = 2; 
+}

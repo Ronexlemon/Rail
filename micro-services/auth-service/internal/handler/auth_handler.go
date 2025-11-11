@@ -7,6 +7,12 @@ import (
 	
 	"github.com/ronexlemon/rail/micro-services/auth-service/events"
 	"github.com/ronexlemon/rail/micro-services/auth-service/internal/service"
+	 "context"
+    "fmt"
+    pb "github.com/ronexlemon/rail/micro-services/auth-service/proto"
+    businesspb "github.com/ronexlemon/rail/micro-services/business-service/proto"
+    "google.golang.org/grpc"
+    "time"
 	
 )
 
@@ -40,4 +46,38 @@ func (h *BusinessHandler) RegisterBusinessHandler(w http.ResponseWriter, r *http
 	w.Header().Set("Content-Type","application/json")
 	json.NewEncoder(w).Encode(user)
 
+}
+
+
+
+
+
+type AuthServer struct {
+    pb.UnimplementedAuthServiceServer
+}
+
+func (s *AuthServer) Authenticate(ctx context.Context, req *pb.AuthenticateRequest) (*pb.AuthenticateResponse, error) {
+    conn, err := grpc.Dial("business-service:50051", grpc.WithInsecure())
+    if err != nil {
+        return nil, fmt.Errorf("failed to connect to business-service: %v", err)
+    }
+    defer conn.Close()
+
+    client := businesspb.NewBusinessServiceClient(conn)
+    ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+    defer cancel()
+
+    resp, err := client.GetBusinessByKeys(ctx, &businesspb.GetBusinessByKeysRequest{
+        ApiKey:    req.ApiKey,
+        SecretKey: req.SecretKey,
+    })
+    if err != nil {
+        return &pb.AuthenticateResponse{Valid: false}, nil
+    }
+
+    return &pb.AuthenticateResponse{
+        BusinessId: resp.BusinessId,
+        Status:     resp.Status,
+        Valid:      true,
+    }, nil
 }

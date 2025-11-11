@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package auth;
+option go_package = "github.com/ronexlemon/rail/auth-service/proto;proto";
+
+
+service AuthService {
+  rpc Authenticate(AuthenticateRequest) returns (AuthenticateResponse) {}
+}
+
+message AuthenticateRequest {
+  string api_key = 1;
+  string secret_key = 2;
+}
+
+message AuthenticateResponse {
+  string business_id = 1;
+  string status = 2;
+  bool valid = 3;
+}
