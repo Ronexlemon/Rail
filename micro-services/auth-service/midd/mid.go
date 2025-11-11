@@ -2,6 +2,6 @@ package midd
 
 import "fmt"
 
-func New(){
+func New() {
 	fmt.Println("New")
 }

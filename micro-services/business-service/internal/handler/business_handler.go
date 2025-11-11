@@ -6,7 +6,7 @@ import (
 
 	"github.com/ronexlemon/rail/micro-services/business-service/events"
 	"github.com/ronexlemon/rail/micro-services/business-service/internal/service"
-    "github.com/ronexlemon/rail/micro-services/auth-service/middleware"
+    "github.com/ronexlemon/rail/micro-services/auth-service/events"
 )
 
 

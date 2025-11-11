@@ -34,7 +34,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			connCtx,
 			"auth-service:50052",
 			grpc.WithTransportCredentials(insecure.NewCredentials()), // non-deprecated
-			grpc.WithBlock(),                                         // wait until connection ready
+			grpc.WithBlock(), // wait until connection ready
 		)
 		if err != nil {
 			http.Error(w, "Failed to connect to auth service", http.StatusInternalServerError)
