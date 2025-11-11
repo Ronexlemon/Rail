@@ -4,6 +4,7 @@ go 1.25.3
 
 require (
 	github.com/joho/godotenv v1.5.1
+	github.com/ronexlemon/rail/micro-services/auth-service v0.0.0-20251111120306-f52a9b1f7172
 	github.com/ronexlemon/rail/shared v0.0.0-20251109213521-7ac0bc787811
 	github.com/shopspring/decimal v1.4.0
 	github.com/steebchen/prisma-client-go v0.47.0
