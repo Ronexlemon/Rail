@@ -45,3 +45,8 @@ func (h *BusinessServiceHandler) RegisterBusinessHandler(w http.ResponseWriter, 
 }
 
 
+
+func ProtectedHandler(w http.ResponseWriter, r *http.Request) {
+    bizInfo := r.Context().Value(middleware.BusinessInfoKey("businessInfo")).(*middleware.BusinessInfo)
+    fmt.Fprintf(w, "Business ID: %s, Status: %s", bizInfo.BusinessID, bizInfo.Status)
+}

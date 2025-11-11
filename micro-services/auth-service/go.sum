@@ -12,6 +12,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/ronexlemon/rail/micro-services/business-service v0.0.0-20251111105945-42ecf1bb78fd h1:pWQTIXnJWvaMtFL/EWa4ufO6Y74xtjntfEZazVYTwAY=
 github.com/ronexlemon/rail/micro-services/business-service v0.0.0-20251111105945-42ecf1bb78fd/go.mod h1:2/gYm5MqNbLPSy/jGXnIdaLn7KoRzp6tq/ahVhyYRx4=
+github.com/ronexlemon/rail/micro-services/business-service v0.0.0-20251111113419-111cadb458a8 h1:SNneg/xU2RKwONF29WWLDPCCutl82K1w3JFcrgkw8Vc=
+github.com/ronexlemon/rail/micro-services/business-service v0.0.0-20251111113419-111cadb458a8/go.mod h1:tDOzT5SSAWYxi74f7BjF87dbjhnX28cJIQ0qGR+MEdc=
 github.com/ronexlemon/rail/shared v0.0.0-20251109213521-7ac0bc787811 h1:/Xw8hXiomf2Xci31eRm4X6QfiXeXGW52EyHwWJBPXCs=
 github.com/ronexlemon/rail/shared v0.0.0-20251109213521-7ac0bc787811/go.mod h1:TBkBRc+9quJFcang8/6qi1L7L/QZyHmCzGq00n5Cp+4=
 github.com/segmentio/kafka-go v0.4.49 h1:GJiNX1d/g+kG6ljyJEoi9++PUMdXGAxb7JGPiDCuNmk=

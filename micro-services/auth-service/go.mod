@@ -20,7 +20,7 @@ require (
 )
 
 require (
-	github.com/ronexlemon/rail/micro-services/business-service v0.0.0-20251111105945-42ecf1bb78fd
+	github.com/ronexlemon/rail/micro-services/business-service v0.0.0-20251111113419-111cadb458a8
 	github.com/ronexlemon/rail/shared v0.0.0-20251109213521-7ac0bc787811
 	go.mongodb.org/mongo-driver/v2 v2.0.1 // indirect
 	google.golang.org/grpc v1.76.0

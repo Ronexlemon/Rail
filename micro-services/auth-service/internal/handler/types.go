@@ -8,3 +8,9 @@ type RegistrationReq struct{
 	Pass  string `json:"pass"`
 }
 
+type Business struct{
+		BusinessID string
+		Status     string
+		ApiKey     string
+		SecretKey  string
+	}
