@@ -11,6 +11,7 @@ import (
 	"github.com/ronexlemon/rail/micro-services/auth-service/events"
 	"github.com/ronexlemon/rail/micro-services/auth-service/internal/service"
 	pb "github.com/ronexlemon/rail/micro-services/auth-service/proto"
+	
 	businesspb "github.com/ronexlemon/rail/micro-services/business-service/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
