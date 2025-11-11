@@ -10,7 +10,7 @@ import (
 	 "context"
     "fmt"
     pb "github.com/ronexlemon/rail/micro-services/auth-service/proto"
-    businesspb "github.com/ronexlemon/rail/micro-services/business-service/proto"
+    businesspb "github.com/ronexlemon/rail/micro-services/business-service/internal/handler"
     "google.golang.org/grpc"
     "time"
 	

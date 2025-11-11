@@ -4,7 +4,7 @@
 // - protoc             v6.33.0
 // source: proto/business.proto
 
-package business_service
+package proto
 
 import (
 	context "context"

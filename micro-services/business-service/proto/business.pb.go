@@ -4,7 +4,7 @@
 // 	protoc        v6.33.0
 // source: proto/business.proto
 
-package business_service
+package proto
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -139,7 +139,7 @@ const file_proto_business_proto_rawDesc = "" +
 	"businessId\x12\x16\n" +
 	"\x06status\x18\x02 \x01(\tR\x06status2k\n" +
 	"\x0fBusinessService\x12X\n" +
-	"\x11GetBusinessByKeys\x12\x1f.proto.GetBusinessByKeysRequest\x1a .proto.GetBusinessByKeysResponse\"\x00B<Z:github.com/ronexlemon/rail/micro-services/business-serviceb\x06proto3"
+	"\x11GetBusinessByKeys\x12\x1f.proto.GetBusinessByKeysRequest\x1a .proto.GetBusinessByKeysResponse\"\x00BHZFgithub.com/ronexlemon/rail/micro-services/business-service/proto;protob\x06proto3"
 
 var (
 	file_proto_business_proto_rawDescOnce sync.Once

@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package proto;
-option go_package = "github.com/ronexlemon/rail/micro-services/business-service";
+option go_package = "github.com/ronexlemon/rail/micro-services/business-service/proto;proto";
 
 service BusinessService {
   rpc GetBusinessByKeys(GetBusinessByKeysRequest) returns (GetBusinessByKeysResponse) {}
