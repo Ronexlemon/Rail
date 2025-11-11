@@ -43,3 +43,5 @@ func (h *BusinessServiceHandler) RegisterBusinessHandler(w http.ResponseWriter, 
 	json.NewEncoder(w).Encode(user)
 
 }
+
+

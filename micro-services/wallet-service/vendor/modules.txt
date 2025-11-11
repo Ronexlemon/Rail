@@ -1,0 +1,151 @@
+# filippo.io/edwards25519 v1.0.0-rc.1
+## explicit; go 1.17
+filippo.io/edwards25519
+filippo.io/edwards25519/field
+# github.com/ProjectZKM/Ziren/crates/go-runtime/zkvm_runtime v0.0.0-20251001021608-1fe7b43fc4d6
+## explicit; go 1.24.0
+github.com/ProjectZKM/Ziren/crates/go-runtime/zkvm_runtime
+# github.com/blocto/solana-go-sdk v1.30.0
+## explicit; go 1.19
+github.com/blocto/solana-go-sdk/common
+github.com/blocto/solana-go-sdk/pkg/bincode
+github.com/blocto/solana-go-sdk/types
+# github.com/decred/dcrd/dcrec/secp256k1/v4 v4.0.1
+## explicit; go 1.16
+github.com/decred/dcrd/dcrec/secp256k1/v4
+github.com/decred/dcrd/dcrec/secp256k1/v4/ecdsa
+# github.com/ethereum/go-ethereum v1.16.7
+## explicit; go 1.24.0
+github.com/ethereum/go-ethereum/common
+github.com/ethereum/go-ethereum/common/hexutil
+github.com/ethereum/go-ethereum/common/math
+github.com/ethereum/go-ethereum/crypto
+github.com/ethereum/go-ethereum/crypto/secp256k1
+github.com/ethereum/go-ethereum/crypto/secp256k1/libsecp256k1/include
+github.com/ethereum/go-ethereum/crypto/secp256k1/libsecp256k1/src
+github.com/ethereum/go-ethereum/crypto/secp256k1/libsecp256k1/src/modules/recovery
+github.com/ethereum/go-ethereum/rlp
+github.com/ethereum/go-ethereum/rlp/internal/rlpstruct
+# github.com/holiman/uint256 v1.3.2
+## explicit; go 1.19
+github.com/holiman/uint256
+# github.com/joho/godotenv v1.5.1
+## explicit; go 1.12
+github.com/joho/godotenv
+# github.com/klauspost/compress v1.16.7
+## explicit; go 1.18
+github.com/klauspost/compress
+github.com/klauspost/compress/flate
+github.com/klauspost/compress/fse
+github.com/klauspost/compress/gzip
+github.com/klauspost/compress/huff0
+github.com/klauspost/compress/internal/cpuinfo
+github.com/klauspost/compress/internal/snapref
+github.com/klauspost/compress/s2
+github.com/klauspost/compress/snappy
+github.com/klauspost/compress/zstd
+github.com/klauspost/compress/zstd/internal/xxhash
+# github.com/mr-tron/base58 v1.2.0
+## explicit; go 1.12
+github.com/mr-tron/base58
+# github.com/pierrec/lz4/v4 v4.1.15
+## explicit; go 1.14
+github.com/pierrec/lz4/v4
+github.com/pierrec/lz4/v4/internal/lz4block
+github.com/pierrec/lz4/v4/internal/lz4errors
+github.com/pierrec/lz4/v4/internal/lz4stream
+github.com/pierrec/lz4/v4/internal/xxh32
+# github.com/ronexlemon/rail/shared v0.0.0-20251110103216-1a612b50f282
+## explicit; go 1.25.3
+github.com/ronexlemon/rail/shared/kafka
+github.com/ronexlemon/rail/shared/kafka/topics
+# github.com/segmentio/kafka-go v0.4.49
+## explicit; go 1.23
+github.com/segmentio/kafka-go
+github.com/segmentio/kafka-go/compress
+github.com/segmentio/kafka-go/compress/gzip
+github.com/segmentio/kafka-go/compress/lz4
+github.com/segmentio/kafka-go/compress/snappy
+github.com/segmentio/kafka-go/compress/zstd
+github.com/segmentio/kafka-go/protocol
+github.com/segmentio/kafka-go/protocol/addoffsetstotxn
+github.com/segmentio/kafka-go/protocol/addpartitionstotxn
+github.com/segmentio/kafka-go/protocol/alterclientquotas
+github.com/segmentio/kafka-go/protocol/alterconfigs
+github.com/segmentio/kafka-go/protocol/alterpartitionreassignments
+github.com/segmentio/kafka-go/protocol/alteruserscramcredentials
+github.com/segmentio/kafka-go/protocol/apiversions
+github.com/segmentio/kafka-go/protocol/consumer
+github.com/segmentio/kafka-go/protocol/createacls
+github.com/segmentio/kafka-go/protocol/createpartitions
+github.com/segmentio/kafka-go/protocol/createtopics
+github.com/segmentio/kafka-go/protocol/deleteacls
+github.com/segmentio/kafka-go/protocol/deletegroups
+github.com/segmentio/kafka-go/protocol/deletetopics
+github.com/segmentio/kafka-go/protocol/describeacls
+github.com/segmentio/kafka-go/protocol/describeclientquotas
+github.com/segmentio/kafka-go/protocol/describeconfigs
+github.com/segmentio/kafka-go/protocol/describegroups
+github.com/segmentio/kafka-go/protocol/describeuserscramcredentials
+github.com/segmentio/kafka-go/protocol/electleaders
+github.com/segmentio/kafka-go/protocol/endtxn
+github.com/segmentio/kafka-go/protocol/fetch
+github.com/segmentio/kafka-go/protocol/findcoordinator
+github.com/segmentio/kafka-go/protocol/heartbeat
+github.com/segmentio/kafka-go/protocol/incrementalalterconfigs
+github.com/segmentio/kafka-go/protocol/initproducerid
+github.com/segmentio/kafka-go/protocol/joingroup
+github.com/segmentio/kafka-go/protocol/leavegroup
+github.com/segmentio/kafka-go/protocol/listgroups
+github.com/segmentio/kafka-go/protocol/listoffsets
+github.com/segmentio/kafka-go/protocol/listpartitionreassignments
+github.com/segmentio/kafka-go/protocol/metadata
+github.com/segmentio/kafka-go/protocol/offsetcommit
+github.com/segmentio/kafka-go/protocol/offsetdelete
+github.com/segmentio/kafka-go/protocol/offsetfetch
+github.com/segmentio/kafka-go/protocol/produce
+github.com/segmentio/kafka-go/protocol/rawproduce
+github.com/segmentio/kafka-go/protocol/saslauthenticate
+github.com/segmentio/kafka-go/protocol/saslhandshake
+github.com/segmentio/kafka-go/protocol/syncgroup
+github.com/segmentio/kafka-go/protocol/txnoffsetcommit
+github.com/segmentio/kafka-go/sasl
+# github.com/shopspring/decimal v1.4.0
+## explicit; go 1.10
+github.com/shopspring/decimal
+# github.com/steebchen/prisma-client-go v0.47.0
+## explicit; go 1.21
+github.com/steebchen/prisma-client-go/binaries
+github.com/steebchen/prisma-client-go/binaries/bindata
+github.com/steebchen/prisma-client-go/binaries/platform
+github.com/steebchen/prisma-client-go/binaries/unpack
+github.com/steebchen/prisma-client-go/engine
+github.com/steebchen/prisma-client-go/engine/mock
+github.com/steebchen/prisma-client-go/engine/protocol
+github.com/steebchen/prisma-client-go/generator
+github.com/steebchen/prisma-client-go/generator/ast/dmmf
+github.com/steebchen/prisma-client-go/generator/ast/transform
+github.com/steebchen/prisma-client-go/generator/templates
+github.com/steebchen/prisma-client-go/generator/templates/actions
+github.com/steebchen/prisma-client-go/generator/types
+github.com/steebchen/prisma-client-go/helpers/gocase
+github.com/steebchen/prisma-client-go/helpers/strcase
+github.com/steebchen/prisma-client-go/logger
+github.com/steebchen/prisma-client-go/runtime/builder
+github.com/steebchen/prisma-client-go/runtime/lifecycle
+github.com/steebchen/prisma-client-go/runtime/raw
+github.com/steebchen/prisma-client-go/runtime/transaction
+github.com/steebchen/prisma-client-go/runtime/types
+github.com/steebchen/prisma-client-go/runtime/types/raw
+# go.mongodb.org/mongo-driver/v2 v2.0.1
+## explicit; go 1.18
+go.mongodb.org/mongo-driver/v2/bson
+go.mongodb.org/mongo-driver/v2/internal/bsoncoreutil
+go.mongodb.org/mongo-driver/v2/internal/decimal128
+go.mongodb.org/mongo-driver/v2/x/bsonx/bsoncore
+# golang.org/x/crypto v0.36.0
+## explicit; go 1.23.0
+golang.org/x/crypto/sha3
+# golang.org/x/sys v0.36.0
+## explicit; go 1.24.0
+golang.org/x/sys/cpu
