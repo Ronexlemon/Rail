@@ -2,11 +2,12 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
+	"github.com/ronexlemon/rail/micro-services/auth-service/middleware"
 	"github.com/ronexlemon/rail/micro-services/business-service/events"
 	"github.com/ronexlemon/rail/micro-services/business-service/internal/service"
-    "github.com/ronexlemon/rail/micro-services/auth-service/events"
 )
 
 

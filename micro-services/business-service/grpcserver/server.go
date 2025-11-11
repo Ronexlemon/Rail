@@ -24,16 +24,16 @@ func NewBusinessRepository() *BusinessRepository {
 	}
 }
 
-type server struct {
+type Server struct {
 	pb.UnimplementedBusinessServiceServer
 	repo *BusinessRepository
 }
 
-func NewServer(repo *BusinessRepository) *server {
-	return &server{repo: repo}
+func NewServer(repo *BusinessRepository) *Server {
+	return &Server{repo: repo}
 }
 
-func (s *server) GetBusinessByKeys(ctx context.Context, req *pb.GetBusinessByKeysRequest) (*pb.GetBusinessByKeysResponse, error) {
+func (s *Server) GetBusinessByKeys(ctx context.Context, req *pb.GetBusinessByKeysRequest) (*pb.GetBusinessByKeysResponse, error) {
 	// Example using Prisma Go client (adjust for your schema)
 	business, err := s.repo.Client.Business.FindFirst(
 		db.Business.APIKey.Equals(req.ApiKey),

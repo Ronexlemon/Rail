@@ -21,5 +21,5 @@ func(s *BusinessService) RegisterBusiness(email,pass string)(*db.UserModel,error
 	if email == "" || pass == ""{
 		return nil,fmt.Errorf("email and pass are required")
 	}
-	return s.repo.CreateBusiness(email,pass)
+	return s.repo.CreateBusiness(email,"fff","fsf","sfs")
 }

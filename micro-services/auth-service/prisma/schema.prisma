@@ -8,19 +8,32 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(uuid())
-  
+  id            String   @id @default(uuid())
+  email         String   @unique
   passwordHash  String
-  role  Role 
-  email      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  role          Role
+  apiKey        String   @unique
+  secretKey     String   @unique
+  status        AuthStatus @default(PENDING)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
+// -----------------------------
+// Enums
+// -----------------------------
 
 enum Role {
-    ADMIN
-    BUSINESS
+  ADMIN
+  BUSINESS
 }
+
+enum AuthStatus {
+  ACTIVE
+  SUSPENDED
+  REVOKED
+  PENDING
+}
+
 
 

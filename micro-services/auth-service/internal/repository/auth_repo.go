@@ -2,8 +2,10 @@ package repository
 
 import (
 	"context"
-	"github.com/ronexlemon/rail/micro-services/auth-service/prisma/db"
+	"fmt"
+
 	"github.com/ronexlemon/rail/micro-services/auth-service/database"
+	"github.com/ronexlemon/rail/micro-services/auth-service/prisma/db"
 )
 
 type BusinessRepository struct {
@@ -22,18 +24,38 @@ func NewBusinessRepository() *BusinessRepository {
 }
 
 // CreateBusiness creates a new business user
-func (r *BusinessRepository) CreateBusiness(email ,name string) (*db.UserModel, error) {
-// 	passwordHash  String
-//   role  Role 
-//   email      String   @unique
+func (r *BusinessRepository) CreateBusiness(email ,name string,apiKey,secretKey string) (*db.UserModel, error) {
+
 	user, err := r.client.User.CreateOne(
+		db.User.Email.Set(email),
 		db.User.PasswordHash.Set(name),         
 		db.User.Role.Set("BUSINESS"),        
-		db.User.Email.Set(email),
+		db.User.APIKey.Set(apiKey),
+		db.User.SecretKey.Set(secretKey),		
+
 	).Exec(r.context)
 
 	if err != nil {
 		return nil, err
 	}
+	return user, nil
+}
+
+func (r *BusinessRepository) ValidateAPIKeys(apiKey, secretKey string) (*db.UserModel, error) {
+	
+	user, err := r.client.User.FindFirst(
+		db.User.APIKey.Equals(apiKey),
+		db.User.SecretKey.Equals(secretKey),
+	).Exec(r.context)
+
+	if err != nil {
+		
+		return nil, fmt.Errorf("invalid apiKey or secretKey: %v", err)
+	}
+
+	if user == nil {
+		return nil, fmt.Errorf("invalid apiKey or secretKey")
+	}
+
 	return user, nil
 }

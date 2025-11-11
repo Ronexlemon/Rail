@@ -21,7 +21,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type AuthenticateRequest struct {
+type GetBusinessByKeysRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ApiKey        string                 `protobuf:"bytes,1,opt,name=api_key,json=apiKey,proto3" json:"api_key,omitempty"`
 	SecretKey     string                 `protobuf:"bytes,2,opt,name=secret_key,json=secretKey,proto3" json:"secret_key,omitempty"`
@@ -29,20 +29,20 @@ type AuthenticateRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *AuthenticateRequest) Reset() {
-	*x = AuthenticateRequest{}
+func (x *GetBusinessByKeysRequest) Reset() {
+	*x = GetBusinessByKeysRequest{}
 	mi := &file_proto_auth_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AuthenticateRequest) String() string {
+func (x *GetBusinessByKeysRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AuthenticateRequest) ProtoMessage() {}
+func (*GetBusinessByKeysRequest) ProtoMessage() {}
 
-func (x *AuthenticateRequest) ProtoReflect() protoreflect.Message {
+func (x *GetBusinessByKeysRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_proto_auth_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -54,48 +54,47 @@ func (x *AuthenticateRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AuthenticateRequest.ProtoReflect.Descriptor instead.
-func (*AuthenticateRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use GetBusinessByKeysRequest.ProtoReflect.Descriptor instead.
+func (*GetBusinessByKeysRequest) Descriptor() ([]byte, []int) {
 	return file_proto_auth_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *AuthenticateRequest) GetApiKey() string {
+func (x *GetBusinessByKeysRequest) GetApiKey() string {
 	if x != nil {
 		return x.ApiKey
 	}
 	return ""
 }
 
-func (x *AuthenticateRequest) GetSecretKey() string {
+func (x *GetBusinessByKeysRequest) GetSecretKey() string {
 	if x != nil {
 		return x.SecretKey
 	}
 	return ""
 }
 
-type AuthenticateResponse struct {
+type GetBusinessByKeysResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	BusinessId    string                 `protobuf:"bytes,1,opt,name=business_id,json=businessId,proto3" json:"business_id,omitempty"`
 	Status        string                 `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
-	Valid         bool                   `protobuf:"varint,3,opt,name=valid,proto3" json:"valid,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *AuthenticateResponse) Reset() {
-	*x = AuthenticateResponse{}
+func (x *GetBusinessByKeysResponse) Reset() {
+	*x = GetBusinessByKeysResponse{}
 	mi := &file_proto_auth_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AuthenticateResponse) String() string {
+func (x *GetBusinessByKeysResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AuthenticateResponse) ProtoMessage() {}
+func (*GetBusinessByKeysResponse) ProtoMessage() {}
 
-func (x *AuthenticateResponse) ProtoReflect() protoreflect.Message {
+func (x *GetBusinessByKeysResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_proto_auth_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -107,48 +106,40 @@ func (x *AuthenticateResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AuthenticateResponse.ProtoReflect.Descriptor instead.
-func (*AuthenticateResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use GetBusinessByKeysResponse.ProtoReflect.Descriptor instead.
+func (*GetBusinessByKeysResponse) Descriptor() ([]byte, []int) {
 	return file_proto_auth_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *AuthenticateResponse) GetBusinessId() string {
+func (x *GetBusinessByKeysResponse) GetBusinessId() string {
 	if x != nil {
 		return x.BusinessId
 	}
 	return ""
 }
 
-func (x *AuthenticateResponse) GetStatus() string {
+func (x *GetBusinessByKeysResponse) GetStatus() string {
 	if x != nil {
 		return x.Status
 	}
 	return ""
 }
 
-func (x *AuthenticateResponse) GetValid() bool {
-	if x != nil {
-		return x.Valid
-	}
-	return false
-}
-
 var File_proto_auth_proto protoreflect.FileDescriptor
 
 const file_proto_auth_proto_rawDesc = "" +
 	"\n" +
-	"\x10proto/auth.proto\x12\x05proto\"M\n" +
-	"\x13AuthenticateRequest\x12\x17\n" +
+	"\x10proto/auth.proto\x12\x05proto\"R\n" +
+	"\x18GetBusinessByKeysRequest\x12\x17\n" +
 	"\aapi_key\x18\x01 \x01(\tR\x06apiKey\x12\x1d\n" +
 	"\n" +
-	"secret_key\x18\x02 \x01(\tR\tsecretKey\"e\n" +
-	"\x14AuthenticateResponse\x12\x1f\n" +
+	"secret_key\x18\x02 \x01(\tR\tsecretKey\"T\n" +
+	"\x19GetBusinessByKeysResponse\x12\x1f\n" +
 	"\vbusiness_id\x18\x01 \x01(\tR\n" +
 	"businessId\x12\x16\n" +
-	"\x06status\x18\x02 \x01(\tR\x06status\x12\x14\n" +
-	"\x05valid\x18\x03 \x01(\bR\x05valid2X\n" +
-	"\vAuthService\x12I\n" +
-	"\fAuthenticate\x12\x1a.proto.AuthenticateRequest\x1a\x1b.proto.AuthenticateResponse\"\x00B>Z<github.com/ronexlemon/rail/micro-services/auth-service/protob\x06proto3"
+	"\x06status\x18\x02 \x01(\tR\x06status2g\n" +
+	"\vAuthService\x12X\n" +
+	"\x11GetBusinessByKeys\x12\x1f.proto.GetBusinessByKeysRequest\x1a .proto.GetBusinessByKeysResponse\"\x00BDZBgithub.com/ronexlemon/rail/micro-services/auth-service/proto;protob\x06proto3"
 
 var (
 	file_proto_auth_proto_rawDescOnce sync.Once
@@ -164,12 +155,12 @@ func file_proto_auth_proto_rawDescGZIP() []byte {
 
 var file_proto_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_proto_auth_proto_goTypes = []any{
-	(*AuthenticateRequest)(nil),  // 0: proto.AuthenticateRequest
-	(*AuthenticateResponse)(nil), // 1: proto.AuthenticateResponse
+	(*GetBusinessByKeysRequest)(nil),  // 0: proto.GetBusinessByKeysRequest
+	(*GetBusinessByKeysResponse)(nil), // 1: proto.GetBusinessByKeysResponse
 }
 var file_proto_auth_proto_depIdxs = []int32{
-	0, // 0: proto.AuthService.Authenticate:input_type -> proto.AuthenticateRequest
-	1, // 1: proto.AuthService.Authenticate:output_type -> proto.AuthenticateResponse
+	0, // 0: proto.AuthService.GetBusinessByKeys:input_type -> proto.GetBusinessByKeysRequest
+	1, // 1: proto.AuthService.GetBusinessByKeys:output_type -> proto.GetBusinessByKeysResponse
 	1, // [1:2] is the sub-list for method output_type
 	0, // [0:1] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
