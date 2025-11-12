@@ -40,7 +40,7 @@ func (s *AuthGRPCServer) GetBusinessByKeys(ctx context.Context, req *pb.GetBusin
 	}, nil
 }
 
-func (s *AuthGRPCServer) RegisterBusiness(ctx context.Context, req *pb.RegisterUserRequest) (*pb.RegisterUserResponse, error) {
+func (s *AuthGRPCServer) RegisterUser(ctx context.Context, req *pb.RegisterUserRequest) (*pb.RegisterUserResponse, error) {
 	
 	business, err := s.service.RegisterBusiness(req.Email, req.Name, req.Password)
 	if err != nil {
