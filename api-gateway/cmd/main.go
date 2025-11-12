@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 
+	"github.com/ronexlemon/rail/api-gateway/internal/handler"
 	"github.com/ronexlemon/rail/api-gateway/internal/middleware"
 )
 
@@ -16,6 +17,8 @@ func main() {
 		w.Write([]byte("Hello Business: " + businessID))
 	})))
 
+	mux.HandleFunc("/register-business", handler.RegisterBusinessHandler)
+ 
 	http.ListenAndServe(":8080", mux)
 	
 }

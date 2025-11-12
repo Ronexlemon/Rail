@@ -83,7 +83,7 @@ func startConsumer(ctx context.Context, brokerURL, groupID string) error {
 			log.Printf(" Result] Key=%s Value=%s",payload.Name, payload.Email)
 			repo:= repository.NewBusinessRepository()
 			service:= service.NewBusinesssService(repo)
-			service.CreateBusinessService("RonexRail",payload.Email,payload.ID)
+			service.CreateBusinessService("RonexRail",payload.Email,payload.ID,"")
 		})
 	}()
 

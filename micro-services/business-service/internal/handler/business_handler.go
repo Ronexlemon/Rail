@@ -7,6 +7,7 @@ import (
 
 	"github.com/ronexlemon/rail/micro-services/auth-service/middleware"
 	"github.com/ronexlemon/rail/micro-services/business-service/events"
+	"github.com/ronexlemon/rail/micro-services/business-service/internal/repository"
 	"github.com/ronexlemon/rail/micro-services/business-service/internal/service"
 )
 
@@ -24,14 +25,14 @@ func NewBusinessHandlerService(service *service.BusinessService)*BusinessService
 
 
 func (h *BusinessServiceHandler) RegisterBusinessHandler(w http.ResponseWriter, r *http.Request){
-	var req BusinessCreateInput
+	var req  repository.BusinessData
 	
 
 	if err:= json.NewDecoder(r.Body).Decode(&req); err !=nil{
 		http.Error(w,"Invalid Request body",http.StatusBadRequest)
 		return
 	}
-	user, err := h.service.CreateNewBusinessService(req.Name,req.Email)
+	user, err := h.service.CreateNewBusinessService(req.Name,req.Email,req.ID)
 	if err !=nil{
 		http.Error(w,err.Error(),http.StatusInternalServerError)
 		return

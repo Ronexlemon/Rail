@@ -9,34 +9,41 @@ generator db{
 
 
 
-model Business{
-    id    String @id @default(uuid())
-    name  String
-    email String 
-    apiKey  String? @unique
-    secretKey  String? @unique
-    //businessId String  //from Auth Service (user.id)
-    status BusinessStatus @default(PENDING)
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+// -----------------------------
+// Business Table
+// -----------------------------
+model Business {
+  id         String         @id @default(uuid())
+  authUserId String         @unique       // links to Auth Service user
+  name       String
+  email      String
+  status     BusinessStatus @default(PENDING)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  
+  documents BusinessDocument[]
 }
+
 
 model BusinessDocument {
-    id   String  @id  @default(uuid())
-    businessId  String 
-    documentUrl  String
-     registrationNo String
-    docType  String
-    verified  Boolean  @default(false)
-    createdAt  DateTime  @default(now())
+  id            String   @id @default(uuid())
+  businessId    String
+  documentUrl   String
+  registrationNo String
+  docType       String
+  verified      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  business      Business @relation(fields: [businessId], references: [id])
 }
 
+// -----------------------------
+// Enums
+// -----------------------------
 enum BusinessStatus {
-    PENDING
-    VERIFIED
-    ACTIVE
-    SUSPENDED
-    
+  PENDING    
+  VERIFIED   
+  ACTIVE     
+  SUSPENDED  
 }
-
-//include virtual accounts

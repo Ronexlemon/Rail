@@ -82,16 +82,19 @@ generator db {
   provider = "go run github.com/steebchen/prisma-client-go"
 }
 
+// -----------------------------
+// Business Table
+// -----------------------------
 model Business {
-  id        String         @id @default(uuid())
-  name      String
-  email     String
-  apiKey    String?        @unique
-  secretKey String?        @unique
-  //businessId String  //from Auth Service (user.id)
-  status    BusinessStatus @default(PENDING)
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
+  id         String         @id @default(uuid())
+  authUserId String         @unique // links to Auth Service user
+  name       String
+  email      String
+  status     BusinessStatus @default(PENDING)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  documents BusinessDocument[]
 }
 
 model BusinessDocument {
@@ -102,16 +105,19 @@ model BusinessDocument {
   docType        String
   verified       Boolean  @default(false)
   createdAt      DateTime @default(now())
+
+  business Business @relation(fields: [businessId], references: [id])
 }
 
+// -----------------------------
+// Enums
+// -----------------------------
 enum BusinessStatus {
   PENDING
   VERIFIED
   ACTIVE
   SUSPENDED
 }
-
-//include virtual accounts
 `
 const schemaDatasourceURL = ""
 const schemaEnvVarName = "DATABASE_URL"
@@ -240,14 +246,13 @@ const (
 type BusinessScalarFieldEnum string
 
 const (
-	BusinessScalarFieldEnumID        BusinessScalarFieldEnum = "id"
-	BusinessScalarFieldEnumName      BusinessScalarFieldEnum = "name"
-	BusinessScalarFieldEnumEmail     BusinessScalarFieldEnum = "email"
-	BusinessScalarFieldEnumAPIKey    BusinessScalarFieldEnum = "apiKey"
-	BusinessScalarFieldEnumSecretKey BusinessScalarFieldEnum = "secretKey"
-	BusinessScalarFieldEnumStatus    BusinessScalarFieldEnum = "status"
-	BusinessScalarFieldEnumCreatedAt BusinessScalarFieldEnum = "createdAt"
-	BusinessScalarFieldEnumUpdatedAt BusinessScalarFieldEnum = "updatedAt"
+	BusinessScalarFieldEnumID         BusinessScalarFieldEnum = "id"
+	BusinessScalarFieldEnumAuthUserID BusinessScalarFieldEnum = "authUserId"
+	BusinessScalarFieldEnumName       BusinessScalarFieldEnum = "name"
+	BusinessScalarFieldEnumEmail      BusinessScalarFieldEnum = "email"
+	BusinessScalarFieldEnumStatus     BusinessScalarFieldEnum = "status"
+	BusinessScalarFieldEnumCreatedAt  BusinessScalarFieldEnum = "createdAt"
+	BusinessScalarFieldEnumUpdatedAt  BusinessScalarFieldEnum = "updatedAt"
 )
 
 type BusinessDocumentScalarFieldEnum string
@@ -274,13 +279,6 @@ type QueryMode string
 const (
 	QueryModeDefault     QueryMode = "default"
 	QueryModeInsensitive QueryMode = "insensitive"
-)
-
-type NullsOrder string
-
-const (
-	NullsOrderFirst NullsOrder = "first"
-	NullsOrderLast  NullsOrder = "last"
 )
 
 // --- template errors.gotpl ---
@@ -318,19 +316,19 @@ type businessPrismaFields = prismaFields
 
 const businessFieldID businessPrismaFields = "id"
 
+const businessFieldAuthUserID businessPrismaFields = "authUserId"
+
 const businessFieldName businessPrismaFields = "name"
 
 const businessFieldEmail businessPrismaFields = "email"
-
-const businessFieldAPIKey businessPrismaFields = "apiKey"
-
-const businessFieldSecretKey businessPrismaFields = "secretKey"
 
 const businessFieldStatus businessPrismaFields = "status"
 
 const businessFieldCreatedAt businessPrismaFields = "createdAt"
 
 const businessFieldUpdatedAt businessPrismaFields = "updatedAt"
+
+const businessFieldDocuments businessPrismaFields = "documents"
 
 type businessDocumentPrismaFields = prismaFields
 
@@ -347,6 +345,8 @@ const businessDocumentFieldDocType businessDocumentPrismaFields = "docType"
 const businessDocumentFieldVerified businessDocumentPrismaFields = "verified"
 
 const businessDocumentFieldCreatedAt businessDocumentPrismaFields = "createdAt"
+
+const businessDocumentFieldBusiness businessDocumentPrismaFields = "business"
 
 // --- template mock.gotpl ---
 func NewMock() (*PrismaClient, *Mock, func(t *testing.T)) {
@@ -471,44 +471,36 @@ type BusinessModel struct {
 
 // InnerBusiness holds the actual data
 type InnerBusiness struct {
-	ID        string         `json:"id"`
-	Name      string         `json:"name"`
-	Email     string         `json:"email"`
-	APIKey    *string        `json:"apiKey,omitempty"`
-	SecretKey *string        `json:"secretKey,omitempty"`
-	Status    BusinessStatus `json:"status"`
-	CreatedAt DateTime       `json:"createdAt"`
-	UpdatedAt DateTime       `json:"updatedAt"`
+	ID         string         `json:"id"`
+	AuthUserID string         `json:"authUserId"`
+	Name       string         `json:"name"`
+	Email      string         `json:"email"`
+	Status     BusinessStatus `json:"status"`
+	CreatedAt  DateTime       `json:"createdAt"`
+	UpdatedAt  DateTime       `json:"updatedAt"`
 }
 
 // RawBusinessModel is a struct for Business when used in raw queries
 type RawBusinessModel struct {
-	ID        RawString         `json:"id"`
-	Name      RawString         `json:"name"`
-	Email     RawString         `json:"email"`
-	APIKey    *RawString        `json:"apiKey,omitempty"`
-	SecretKey *RawString        `json:"secretKey,omitempty"`
-	Status    RawBusinessStatus `json:"status"`
-	CreatedAt RawDateTime       `json:"createdAt"`
-	UpdatedAt RawDateTime       `json:"updatedAt"`
+	ID         RawString         `json:"id"`
+	AuthUserID RawString         `json:"authUserId"`
+	Name       RawString         `json:"name"`
+	Email      RawString         `json:"email"`
+	Status     RawBusinessStatus `json:"status"`
+	CreatedAt  RawDateTime       `json:"createdAt"`
+	UpdatedAt  RawDateTime       `json:"updatedAt"`
 }
 
 // RelationsBusiness holds the relation data separately
 type RelationsBusiness struct {
+	Documents []BusinessDocumentModel `json:"documents,omitempty"`
 }
 
-func (r BusinessModel) APIKey() (value String, ok bool) {
-	if r.InnerBusiness.APIKey == nil {
-		return value, false
+func (r BusinessModel) Documents() (value []BusinessDocumentModel) {
+	if r.RelationsBusiness.Documents == nil {
+		panic("attempted to access documents but did not fetch it using the .With() syntax")
 	}
-	return *r.InnerBusiness.APIKey, true
-}
-
-func (r BusinessModel) SecretKey() (value String, ok bool) {
-	if r.InnerBusiness.SecretKey == nil {
-		return value, false
-	}
-	return *r.InnerBusiness.SecretKey, true
+	return r.RelationsBusiness.Documents
 }
 
 // BusinessDocumentModel represents the BusinessDocument model and is a wrapper for accessing fields and methods
@@ -541,6 +533,14 @@ type RawBusinessDocumentModel struct {
 
 // RelationsBusinessDocument holds the relation data separately
 type RelationsBusinessDocument struct {
+	Business *BusinessModel `json:"business,omitempty"`
+}
+
+func (r BusinessDocumentModel) Business() (value *BusinessModel) {
+	if r.RelationsBusinessDocument.Business == nil {
+		panic("attempted to access business but did not fetch it using the .With() syntax")
+	}
+	return r.RelationsBusinessDocument.Business
 }
 
 // --- template query.gotpl ---
@@ -556,6 +556,12 @@ type businessQuery struct {
 	// @required
 	ID businessQueryIDString
 
+	// AuthUserID
+	//
+	// @required
+	// @unique
+	AuthUserID businessQueryAuthUserIDString
+
 	// Name
 	//
 	// @required
@@ -565,18 +571,6 @@ type businessQuery struct {
 	//
 	// @required
 	Email businessQueryEmailString
-
-	// APIKey
-	//
-	// @optional
-	// @unique
-	APIKey businessQueryAPIKeyString
-
-	// SecretKey
-	//
-	// @optional
-	// @unique
-	SecretKey businessQuerySecretKeyString
 
 	// Status
 	//
@@ -592,6 +586,8 @@ type businessQuery struct {
 	//
 	// @required
 	UpdatedAt businessQueryUpdatedAtDateTime
+
+	Documents businessQueryDocumentsRelations
 }
 
 func (businessQuery) Not(params ...BusinessWhereParam) businessDefaultParam {
@@ -990,6 +986,353 @@ func (r businessQueryIDString) HasSuffixIfPresent(value *string) businessParamUn
 
 func (r businessQueryIDString) Field() businessPrismaFields {
 	return businessFieldID
+}
+
+// base struct
+type businessQueryAuthUserIDString struct{}
+
+// Set the required value of AuthUserID
+func (r businessQueryAuthUserIDString) Set(value string) businessWithPrismaAuthUserIDSetParam {
+
+	return businessWithPrismaAuthUserIDSetParam{
+		data: builder.Field{
+			Name:  "authUserId",
+			Value: value,
+		},
+	}
+
+}
+
+// Set the optional value of AuthUserID dynamically
+func (r businessQueryAuthUserIDString) SetIfPresent(value *String) businessWithPrismaAuthUserIDSetParam {
+	if value == nil {
+		return businessWithPrismaAuthUserIDSetParam{}
+	}
+
+	return r.Set(*value)
+}
+
+func (r businessQueryAuthUserIDString) Equals(value string) businessWithPrismaAuthUserIDEqualsUniqueParam {
+
+	return businessWithPrismaAuthUserIDEqualsUniqueParam{
+		data: builder.Field{
+			Name: "authUserId",
+			Fields: []builder.Field{
+				{
+					Name:  "equals",
+					Value: value,
+				},
+			},
+		},
+	}
+}
+
+func (r businessQueryAuthUserIDString) EqualsIfPresent(value *string) businessWithPrismaAuthUserIDEqualsUniqueParam {
+	if value == nil {
+		return businessWithPrismaAuthUserIDEqualsUniqueParam{}
+	}
+	return r.Equals(*value)
+}
+
+func (r businessQueryAuthUserIDString) Order(direction SortOrder) businessDefaultParam {
+	return businessDefaultParam{
+		data: builder.Field{
+			Name:  "authUserId",
+			Value: direction,
+		},
+	}
+}
+
+func (r businessQueryAuthUserIDString) Cursor(cursor string) businessCursorParam {
+	return businessCursorParam{
+		data: builder.Field{
+			Name:  "authUserId",
+			Value: cursor,
+		},
+	}
+}
+
+func (r businessQueryAuthUserIDString) In(value []string) businessParamUnique {
+	return businessParamUnique{
+		data: builder.Field{
+			Name: "authUserId",
+			Fields: []builder.Field{
+				{
+					Name:  "in",
+					Value: value,
+				},
+			},
+		},
+	}
+}
+
+func (r businessQueryAuthUserIDString) InIfPresent(value []string) businessParamUnique {
+	if value == nil {
+		return businessParamUnique{}
+	}
+	return r.In(value)
+}
+
+func (r businessQueryAuthUserIDString) NotIn(value []string) businessParamUnique {
+	return businessParamUnique{
+		data: builder.Field{
+			Name: "authUserId",
+			Fields: []builder.Field{
+				{
+					Name:  "notIn",
+					Value: value,
+				},
+			},
+		},
+	}
+}
+
+func (r businessQueryAuthUserIDString) NotInIfPresent(value []string) businessParamUnique {
+	if value == nil {
+		return businessParamUnique{}
+	}
+	return r.NotIn(value)
+}
+
+func (r businessQueryAuthUserIDString) Lt(value string) businessParamUnique {
+	return businessParamUnique{
+		data: builder.Field{
+			Name: "authUserId",
+			Fields: []builder.Field{
+				{
+					Name:  "lt",
+					Value: value,
+				},
+			},
+		},
+	}
+}
+
+func (r businessQueryAuthUserIDString) LtIfPresent(value *string) businessParamUnique {
+	if value == nil {
+		return businessParamUnique{}
+	}
+	return r.Lt(*value)
+}
+
+func (r businessQueryAuthUserIDString) Lte(value string) businessParamUnique {
+	return businessParamUnique{
+		data: builder.Field{
+			Name: "authUserId",
+			Fields: []builder.Field{
+				{
+					Name:  "lte",
+					Value: value,
+				},
+			},
+		},
+	}
+}
+
+func (r businessQueryAuthUserIDString) LteIfPresent(value *string) businessParamUnique {
+	if value == nil {
+		return businessParamUnique{}
+	}
+	return r.Lte(*value)
+}
+
+func (r businessQueryAuthUserIDString) Gt(value string) businessParamUnique {
+	return businessParamUnique{
+		data: builder.Field{
+			Name: "authUserId",
+			Fields: []builder.Field{
+				{
+					Name:  "gt",
+					Value: value,
+				},
+			},
+		},
+	}
+}
+
+func (r businessQueryAuthUserIDString) GtIfPresent(value *string) businessParamUnique {
+	if value == nil {
+		return businessParamUnique{}
+	}
+	return r.Gt(*value)
+}
+
+func (r businessQueryAuthUserIDString) Gte(value string) businessParamUnique {
+	return businessParamUnique{
+		data: builder.Field{
+			Name: "authUserId",
+			Fields: []builder.Field{
+				{
+					Name:  "gte",
+					Value: value,
+				},
+			},
+		},
+	}
+}
+
+func (r businessQueryAuthUserIDString) GteIfPresent(value *string) businessParamUnique {
+	if value == nil {
+		return businessParamUnique{}
+	}
+	return r.Gte(*value)
+}
+
+func (r businessQueryAuthUserIDString) Contains(value string) businessParamUnique {
+	return businessParamUnique{
+		data: builder.Field{
+			Name: "authUserId",
+			Fields: []builder.Field{
+				{
+					Name:  "contains",
+					Value: value,
+				},
+			},
+		},
+	}
+}
+
+func (r businessQueryAuthUserIDString) ContainsIfPresent(value *string) businessParamUnique {
+	if value == nil {
+		return businessParamUnique{}
+	}
+	return r.Contains(*value)
+}
+
+func (r businessQueryAuthUserIDString) StartsWith(value string) businessParamUnique {
+	return businessParamUnique{
+		data: builder.Field{
+			Name: "authUserId",
+			Fields: []builder.Field{
+				{
+					Name:  "startsWith",
+					Value: value,
+				},
+			},
+		},
+	}
+}
+
+func (r businessQueryAuthUserIDString) StartsWithIfPresent(value *string) businessParamUnique {
+	if value == nil {
+		return businessParamUnique{}
+	}
+	return r.StartsWith(*value)
+}
+
+func (r businessQueryAuthUserIDString) EndsWith(value string) businessParamUnique {
+	return businessParamUnique{
+		data: builder.Field{
+			Name: "authUserId",
+			Fields: []builder.Field{
+				{
+					Name:  "endsWith",
+					Value: value,
+				},
+			},
+		},
+	}
+}
+
+func (r businessQueryAuthUserIDString) EndsWithIfPresent(value *string) businessParamUnique {
+	if value == nil {
+		return businessParamUnique{}
+	}
+	return r.EndsWith(*value)
+}
+
+func (r businessQueryAuthUserIDString) Mode(value QueryMode) businessParamUnique {
+	return businessParamUnique{
+		data: builder.Field{
+			Name: "authUserId",
+			Fields: []builder.Field{
+				{
+					Name:  "mode",
+					Value: value,
+				},
+			},
+		},
+	}
+}
+
+func (r businessQueryAuthUserIDString) ModeIfPresent(value *QueryMode) businessParamUnique {
+	if value == nil {
+		return businessParamUnique{}
+	}
+	return r.Mode(*value)
+}
+
+func (r businessQueryAuthUserIDString) Not(value string) businessParamUnique {
+	return businessParamUnique{
+		data: builder.Field{
+			Name: "authUserId",
+			Fields: []builder.Field{
+				{
+					Name:  "not",
+					Value: value,
+				},
+			},
+		},
+	}
+}
+
+func (r businessQueryAuthUserIDString) NotIfPresent(value *string) businessParamUnique {
+	if value == nil {
+		return businessParamUnique{}
+	}
+	return r.Not(*value)
+}
+
+// deprecated: Use StartsWith instead.
+
+func (r businessQueryAuthUserIDString) HasPrefix(value string) businessParamUnique {
+	return businessParamUnique{
+		data: builder.Field{
+			Name: "authUserId",
+			Fields: []builder.Field{
+				{
+					Name:  "starts_with",
+					Value: value,
+				},
+			},
+		},
+	}
+}
+
+// deprecated: Use StartsWithIfPresent instead.
+func (r businessQueryAuthUserIDString) HasPrefixIfPresent(value *string) businessParamUnique {
+	if value == nil {
+		return businessParamUnique{}
+	}
+	return r.HasPrefix(*value)
+}
+
+// deprecated: Use EndsWith instead.
+
+func (r businessQueryAuthUserIDString) HasSuffix(value string) businessParamUnique {
+	return businessParamUnique{
+		data: builder.Field{
+			Name: "authUserId",
+			Fields: []builder.Field{
+				{
+					Name:  "ends_with",
+					Value: value,
+				},
+			},
+		},
+	}
+}
+
+// deprecated: Use EndsWithIfPresent instead.
+func (r businessQueryAuthUserIDString) HasSuffixIfPresent(value *string) businessParamUnique {
+	if value == nil {
+		return businessParamUnique{}
+	}
+	return r.HasSuffix(*value)
+}
+
+func (r businessQueryAuthUserIDString) Field() businessPrismaFields {
+	return businessFieldAuthUserID
 }
 
 // base struct
@@ -1684,790 +2027,6 @@ func (r businessQueryEmailString) HasSuffixIfPresent(value *string) businessDefa
 
 func (r businessQueryEmailString) Field() businessPrismaFields {
 	return businessFieldEmail
-}
-
-// base struct
-type businessQueryAPIKeyString struct{}
-
-// Set the optional value of APIKey
-func (r businessQueryAPIKeyString) Set(value string) businessSetParam {
-
-	return businessSetParam{
-		data: builder.Field{
-			Name:  "apiKey",
-			Value: value,
-		},
-	}
-
-}
-
-// Set the optional value of APIKey dynamically
-func (r businessQueryAPIKeyString) SetIfPresent(value *String) businessSetParam {
-	if value == nil {
-		return businessSetParam{}
-	}
-
-	return r.Set(*value)
-}
-
-// Set the optional value of APIKey dynamically
-func (r businessQueryAPIKeyString) SetOptional(value *String) businessSetParam {
-	if value == nil {
-
-		var v *string
-		return businessSetParam{
-			data: builder.Field{
-				Name:  "apiKey",
-				Value: v,
-			},
-		}
-	}
-
-	return r.Set(*value)
-}
-
-func (r businessQueryAPIKeyString) Equals(value string) businessWithPrismaAPIKeyEqualsUniqueParam {
-
-	return businessWithPrismaAPIKeyEqualsUniqueParam{
-		data: builder.Field{
-			Name: "apiKey",
-			Fields: []builder.Field{
-				{
-					Name:  "equals",
-					Value: value,
-				},
-			},
-		},
-	}
-}
-
-func (r businessQueryAPIKeyString) EqualsIfPresent(value *string) businessWithPrismaAPIKeyEqualsUniqueParam {
-	if value == nil {
-		return businessWithPrismaAPIKeyEqualsUniqueParam{}
-	}
-	return r.Equals(*value)
-}
-
-func (r businessQueryAPIKeyString) EqualsOptional(value *String) businessParamUnique {
-	return businessParamUnique{
-		data: builder.Field{
-			Name: "apiKey",
-			Fields: []builder.Field{
-				{
-					Name:  "equals",
-					Value: value,
-				},
-			},
-		},
-	}
-}
-
-func (r businessQueryAPIKeyString) IsNull() businessParamUnique {
-	var str *string = nil
-	return businessParamUnique{
-		data: builder.Field{
-			Name: "apiKey",
-			Fields: []builder.Field{
-				{
-					Name:  "equals",
-					Value: str,
-				},
-			},
-		},
-	}
-}
-
-func (r businessQueryAPIKeyString) Order(direction SortOrder) businessDefaultParam {
-	return businessDefaultParam{
-		data: builder.Field{
-			Name:  "apiKey",
-			Value: direction,
-		},
-	}
-}
-
-func (r businessQueryAPIKeyString) Cursor(cursor string) businessCursorParam {
-	return businessCursorParam{
-		data: builder.Field{
-			Name:  "apiKey",
-			Value: cursor,
-		},
-	}
-}
-
-func (r businessQueryAPIKeyString) In(value []string) businessParamUnique {
-	return businessParamUnique{
-		data: builder.Field{
-			Name: "apiKey",
-			Fields: []builder.Field{
-				{
-					Name:  "in",
-					Value: value,
-				},
-			},
-		},
-	}
-}
-
-func (r businessQueryAPIKeyString) InIfPresent(value []string) businessParamUnique {
-	if value == nil {
-		return businessParamUnique{}
-	}
-	return r.In(value)
-}
-
-func (r businessQueryAPIKeyString) NotIn(value []string) businessParamUnique {
-	return businessParamUnique{
-		data: builder.Field{
-			Name: "apiKey",
-			Fields: []builder.Field{
-				{
-					Name:  "notIn",
-					Value: value,
-				},
-			},
-		},
-	}
-}
-
-func (r businessQueryAPIKeyString) NotInIfPresent(value []string) businessParamUnique {
-	if value == nil {
-		return businessParamUnique{}
-	}
-	return r.NotIn(value)
-}
-
-func (r businessQueryAPIKeyString) Lt(value string) businessParamUnique {
-	return businessParamUnique{
-		data: builder.Field{
-			Name: "apiKey",
-			Fields: []builder.Field{
-				{
-					Name:  "lt",
-					Value: value,
-				},
-			},
-		},
-	}
-}
-
-func (r businessQueryAPIKeyString) LtIfPresent(value *string) businessParamUnique {
-	if value == nil {
-		return businessParamUnique{}
-	}
-	return r.Lt(*value)
-}
-
-func (r businessQueryAPIKeyString) Lte(value string) businessParamUnique {
-	return businessParamUnique{
-		data: builder.Field{
-			Name: "apiKey",
-			Fields: []builder.Field{
-				{
-					Name:  "lte",
-					Value: value,
-				},
-			},
-		},
-	}
-}
-
-func (r businessQueryAPIKeyString) LteIfPresent(value *string) businessParamUnique {
-	if value == nil {
-		return businessParamUnique{}
-	}
-	return r.Lte(*value)
-}
-
-func (r businessQueryAPIKeyString) Gt(value string) businessParamUnique {
-	return businessParamUnique{
-		data: builder.Field{
-			Name: "apiKey",
-			Fields: []builder.Field{
-				{
-					Name:  "gt",
-					Value: value,
-				},
-			},
-		},
-	}
-}
-
-func (r businessQueryAPIKeyString) GtIfPresent(value *string) businessParamUnique {
-	if value == nil {
-		return businessParamUnique{}
-	}
-	return r.Gt(*value)
-}
-
-func (r businessQueryAPIKeyString) Gte(value string) businessParamUnique {
-	return businessParamUnique{
-		data: builder.Field{
-			Name: "apiKey",
-			Fields: []builder.Field{
-				{
-					Name:  "gte",
-					Value: value,
-				},
-			},
-		},
-	}
-}
-
-func (r businessQueryAPIKeyString) GteIfPresent(value *string) businessParamUnique {
-	if value == nil {
-		return businessParamUnique{}
-	}
-	return r.Gte(*value)
-}
-
-func (r businessQueryAPIKeyString) Contains(value string) businessParamUnique {
-	return businessParamUnique{
-		data: builder.Field{
-			Name: "apiKey",
-			Fields: []builder.Field{
-				{
-					Name:  "contains",
-					Value: value,
-				},
-			},
-		},
-	}
-}
-
-func (r businessQueryAPIKeyString) ContainsIfPresent(value *string) businessParamUnique {
-	if value == nil {
-		return businessParamUnique{}
-	}
-	return r.Contains(*value)
-}
-
-func (r businessQueryAPIKeyString) StartsWith(value string) businessParamUnique {
-	return businessParamUnique{
-		data: builder.Field{
-			Name: "apiKey",
-			Fields: []builder.Field{
-				{
-					Name:  "startsWith",
-					Value: value,
-				},
-			},
-		},
-	}
-}
-
-func (r businessQueryAPIKeyString) StartsWithIfPresent(value *string) businessParamUnique {
-	if value == nil {
-		return businessParamUnique{}
-	}
-	return r.StartsWith(*value)
-}
-
-func (r businessQueryAPIKeyString) EndsWith(value string) businessParamUnique {
-	return businessParamUnique{
-		data: builder.Field{
-			Name: "apiKey",
-			Fields: []builder.Field{
-				{
-					Name:  "endsWith",
-					Value: value,
-				},
-			},
-		},
-	}
-}
-
-func (r businessQueryAPIKeyString) EndsWithIfPresent(value *string) businessParamUnique {
-	if value == nil {
-		return businessParamUnique{}
-	}
-	return r.EndsWith(*value)
-}
-
-func (r businessQueryAPIKeyString) Mode(value QueryMode) businessParamUnique {
-	return businessParamUnique{
-		data: builder.Field{
-			Name: "apiKey",
-			Fields: []builder.Field{
-				{
-					Name:  "mode",
-					Value: value,
-				},
-			},
-		},
-	}
-}
-
-func (r businessQueryAPIKeyString) ModeIfPresent(value *QueryMode) businessParamUnique {
-	if value == nil {
-		return businessParamUnique{}
-	}
-	return r.Mode(*value)
-}
-
-func (r businessQueryAPIKeyString) Not(value string) businessParamUnique {
-	return businessParamUnique{
-		data: builder.Field{
-			Name: "apiKey",
-			Fields: []builder.Field{
-				{
-					Name:  "not",
-					Value: value,
-				},
-			},
-		},
-	}
-}
-
-func (r businessQueryAPIKeyString) NotIfPresent(value *string) businessParamUnique {
-	if value == nil {
-		return businessParamUnique{}
-	}
-	return r.Not(*value)
-}
-
-// deprecated: Use StartsWith instead.
-
-func (r businessQueryAPIKeyString) HasPrefix(value string) businessParamUnique {
-	return businessParamUnique{
-		data: builder.Field{
-			Name: "apiKey",
-			Fields: []builder.Field{
-				{
-					Name:  "starts_with",
-					Value: value,
-				},
-			},
-		},
-	}
-}
-
-// deprecated: Use StartsWithIfPresent instead.
-func (r businessQueryAPIKeyString) HasPrefixIfPresent(value *string) businessParamUnique {
-	if value == nil {
-		return businessParamUnique{}
-	}
-	return r.HasPrefix(*value)
-}
-
-// deprecated: Use EndsWith instead.
-
-func (r businessQueryAPIKeyString) HasSuffix(value string) businessParamUnique {
-	return businessParamUnique{
-		data: builder.Field{
-			Name: "apiKey",
-			Fields: []builder.Field{
-				{
-					Name:  "ends_with",
-					Value: value,
-				},
-			},
-		},
-	}
-}
-
-// deprecated: Use EndsWithIfPresent instead.
-func (r businessQueryAPIKeyString) HasSuffixIfPresent(value *string) businessParamUnique {
-	if value == nil {
-		return businessParamUnique{}
-	}
-	return r.HasSuffix(*value)
-}
-
-func (r businessQueryAPIKeyString) Field() businessPrismaFields {
-	return businessFieldAPIKey
-}
-
-// base struct
-type businessQuerySecretKeyString struct{}
-
-// Set the optional value of SecretKey
-func (r businessQuerySecretKeyString) Set(value string) businessSetParam {
-
-	return businessSetParam{
-		data: builder.Field{
-			Name:  "secretKey",
-			Value: value,
-		},
-	}
-
-}
-
-// Set the optional value of SecretKey dynamically
-func (r businessQuerySecretKeyString) SetIfPresent(value *String) businessSetParam {
-	if value == nil {
-		return businessSetParam{}
-	}
-
-	return r.Set(*value)
-}
-
-// Set the optional value of SecretKey dynamically
-func (r businessQuerySecretKeyString) SetOptional(value *String) businessSetParam {
-	if value == nil {
-
-		var v *string
-		return businessSetParam{
-			data: builder.Field{
-				Name:  "secretKey",
-				Value: v,
-			},
-		}
-	}
-
-	return r.Set(*value)
-}
-
-func (r businessQuerySecretKeyString) Equals(value string) businessWithPrismaSecretKeyEqualsUniqueParam {
-
-	return businessWithPrismaSecretKeyEqualsUniqueParam{
-		data: builder.Field{
-			Name: "secretKey",
-			Fields: []builder.Field{
-				{
-					Name:  "equals",
-					Value: value,
-				},
-			},
-		},
-	}
-}
-
-func (r businessQuerySecretKeyString) EqualsIfPresent(value *string) businessWithPrismaSecretKeyEqualsUniqueParam {
-	if value == nil {
-		return businessWithPrismaSecretKeyEqualsUniqueParam{}
-	}
-	return r.Equals(*value)
-}
-
-func (r businessQuerySecretKeyString) EqualsOptional(value *String) businessParamUnique {
-	return businessParamUnique{
-		data: builder.Field{
-			Name: "secretKey",
-			Fields: []builder.Field{
-				{
-					Name:  "equals",
-					Value: value,
-				},
-			},
-		},
-	}
-}
-
-func (r businessQuerySecretKeyString) IsNull() businessParamUnique {
-	var str *string = nil
-	return businessParamUnique{
-		data: builder.Field{
-			Name: "secretKey",
-			Fields: []builder.Field{
-				{
-					Name:  "equals",
-					Value: str,
-				},
-			},
-		},
-	}
-}
-
-func (r businessQuerySecretKeyString) Order(direction SortOrder) businessDefaultParam {
-	return businessDefaultParam{
-		data: builder.Field{
-			Name:  "secretKey",
-			Value: direction,
-		},
-	}
-}
-
-func (r businessQuerySecretKeyString) Cursor(cursor string) businessCursorParam {
-	return businessCursorParam{
-		data: builder.Field{
-			Name:  "secretKey",
-			Value: cursor,
-		},
-	}
-}
-
-func (r businessQuerySecretKeyString) In(value []string) businessParamUnique {
-	return businessParamUnique{
-		data: builder.Field{
-			Name: "secretKey",
-			Fields: []builder.Field{
-				{
-					Name:  "in",
-					Value: value,
-				},
-			},
-		},
-	}
-}
-
-func (r businessQuerySecretKeyString) InIfPresent(value []string) businessParamUnique {
-	if value == nil {
-		return businessParamUnique{}
-	}
-	return r.In(value)
-}
-
-func (r businessQuerySecretKeyString) NotIn(value []string) businessParamUnique {
-	return businessParamUnique{
-		data: builder.Field{
-			Name: "secretKey",
-			Fields: []builder.Field{
-				{
-					Name:  "notIn",
-					Value: value,
-				},
-			},
-		},
-	}
-}
-
-func (r businessQuerySecretKeyString) NotInIfPresent(value []string) businessParamUnique {
-	if value == nil {
-		return businessParamUnique{}
-	}
-	return r.NotIn(value)
-}
-
-func (r businessQuerySecretKeyString) Lt(value string) businessParamUnique {
-	return businessParamUnique{
-		data: builder.Field{
-			Name: "secretKey",
-			Fields: []builder.Field{
-				{
-					Name:  "lt",
-					Value: value,
-				},
-			},
-		},
-	}
-}
-
-func (r businessQuerySecretKeyString) LtIfPresent(value *string) businessParamUnique {
-	if value == nil {
-		return businessParamUnique{}
-	}
-	return r.Lt(*value)
-}
-
-func (r businessQuerySecretKeyString) Lte(value string) businessParamUnique {
-	return businessParamUnique{
-		data: builder.Field{
-			Name: "secretKey",
-			Fields: []builder.Field{
-				{
-					Name:  "lte",
-					Value: value,
-				},
-			},
-		},
-	}
-}
-
-func (r businessQuerySecretKeyString) LteIfPresent(value *string) businessParamUnique {
-	if value == nil {
-		return businessParamUnique{}
-	}
-	return r.Lte(*value)
-}
-
-func (r businessQuerySecretKeyString) Gt(value string) businessParamUnique {
-	return businessParamUnique{
-		data: builder.Field{
-			Name: "secretKey",
-			Fields: []builder.Field{
-				{
-					Name:  "gt",
-					Value: value,
-				},
-			},
-		},
-	}
-}
-
-func (r businessQuerySecretKeyString) GtIfPresent(value *string) businessParamUnique {
-	if value == nil {
-		return businessParamUnique{}
-	}
-	return r.Gt(*value)
-}
-
-func (r businessQuerySecretKeyString) Gte(value string) businessParamUnique {
-	return businessParamUnique{
-		data: builder.Field{
-			Name: "secretKey",
-			Fields: []builder.Field{
-				{
-					Name:  "gte",
-					Value: value,
-				},
-			},
-		},
-	}
-}
-
-func (r businessQuerySecretKeyString) GteIfPresent(value *string) businessParamUnique {
-	if value == nil {
-		return businessParamUnique{}
-	}
-	return r.Gte(*value)
-}
-
-func (r businessQuerySecretKeyString) Contains(value string) businessParamUnique {
-	return businessParamUnique{
-		data: builder.Field{
-			Name: "secretKey",
-			Fields: []builder.Field{
-				{
-					Name:  "contains",
-					Value: value,
-				},
-			},
-		},
-	}
-}
-
-func (r businessQuerySecretKeyString) ContainsIfPresent(value *string) businessParamUnique {
-	if value == nil {
-		return businessParamUnique{}
-	}
-	return r.Contains(*value)
-}
-
-func (r businessQuerySecretKeyString) StartsWith(value string) businessParamUnique {
-	return businessParamUnique{
-		data: builder.Field{
-			Name: "secretKey",
-			Fields: []builder.Field{
-				{
-					Name:  "startsWith",
-					Value: value,
-				},
-			},
-		},
-	}
-}
-
-func (r businessQuerySecretKeyString) StartsWithIfPresent(value *string) businessParamUnique {
-	if value == nil {
-		return businessParamUnique{}
-	}
-	return r.StartsWith(*value)
-}
-
-func (r businessQuerySecretKeyString) EndsWith(value string) businessParamUnique {
-	return businessParamUnique{
-		data: builder.Field{
-			Name: "secretKey",
-			Fields: []builder.Field{
-				{
-					Name:  "endsWith",
-					Value: value,
-				},
-			},
-		},
-	}
-}
-
-func (r businessQuerySecretKeyString) EndsWithIfPresent(value *string) businessParamUnique {
-	if value == nil {
-		return businessParamUnique{}
-	}
-	return r.EndsWith(*value)
-}
-
-func (r businessQuerySecretKeyString) Mode(value QueryMode) businessParamUnique {
-	return businessParamUnique{
-		data: builder.Field{
-			Name: "secretKey",
-			Fields: []builder.Field{
-				{
-					Name:  "mode",
-					Value: value,
-				},
-			},
-		},
-	}
-}
-
-func (r businessQuerySecretKeyString) ModeIfPresent(value *QueryMode) businessParamUnique {
-	if value == nil {
-		return businessParamUnique{}
-	}
-	return r.Mode(*value)
-}
-
-func (r businessQuerySecretKeyString) Not(value string) businessParamUnique {
-	return businessParamUnique{
-		data: builder.Field{
-			Name: "secretKey",
-			Fields: []builder.Field{
-				{
-					Name:  "not",
-					Value: value,
-				},
-			},
-		},
-	}
-}
-
-func (r businessQuerySecretKeyString) NotIfPresent(value *string) businessParamUnique {
-	if value == nil {
-		return businessParamUnique{}
-	}
-	return r.Not(*value)
-}
-
-// deprecated: Use StartsWith instead.
-
-func (r businessQuerySecretKeyString) HasPrefix(value string) businessParamUnique {
-	return businessParamUnique{
-		data: builder.Field{
-			Name: "secretKey",
-			Fields: []builder.Field{
-				{
-					Name:  "starts_with",
-					Value: value,
-				},
-			},
-		},
-	}
-}
-
-// deprecated: Use StartsWithIfPresent instead.
-func (r businessQuerySecretKeyString) HasPrefixIfPresent(value *string) businessParamUnique {
-	if value == nil {
-		return businessParamUnique{}
-	}
-	return r.HasPrefix(*value)
-}
-
-// deprecated: Use EndsWith instead.
-
-func (r businessQuerySecretKeyString) HasSuffix(value string) businessParamUnique {
-	return businessParamUnique{
-		data: builder.Field{
-			Name: "secretKey",
-			Fields: []builder.Field{
-				{
-					Name:  "ends_with",
-					Value: value,
-				},
-			},
-		},
-	}
-}
-
-// deprecated: Use EndsWithIfPresent instead.
-func (r businessQuerySecretKeyString) HasSuffixIfPresent(value *string) businessParamUnique {
-	if value == nil {
-		return businessParamUnique{}
-	}
-	return r.HasSuffix(*value)
-}
-
-func (r businessQuerySecretKeyString) Field() businessPrismaFields {
-	return businessFieldSecretKey
 }
 
 // base struct
@@ -3223,6 +2782,178 @@ func (r businessQueryUpdatedAtDateTime) Field() businessPrismaFields {
 	return businessFieldUpdatedAt
 }
 
+// base struct
+type businessQueryDocumentsBusinessDocument struct{}
+
+type businessQueryDocumentsRelations struct{}
+
+// Business -> Documents
+//
+// @relation
+// @required
+func (businessQueryDocumentsRelations) Some(
+	params ...BusinessDocumentWhereParam,
+) businessDefaultParam {
+	var fields []builder.Field
+
+	for _, q := range params {
+		fields = append(fields, q.field())
+	}
+
+	return businessDefaultParam{
+		data: builder.Field{
+			Name: "documents",
+			Fields: []builder.Field{
+				{
+					Name:   "some",
+					Fields: fields,
+				},
+			},
+		},
+	}
+}
+
+// Business -> Documents
+//
+// @relation
+// @required
+func (businessQueryDocumentsRelations) Every(
+	params ...BusinessDocumentWhereParam,
+) businessDefaultParam {
+	var fields []builder.Field
+
+	for _, q := range params {
+		fields = append(fields, q.field())
+	}
+
+	return businessDefaultParam{
+		data: builder.Field{
+			Name: "documents",
+			Fields: []builder.Field{
+				{
+					Name:   "every",
+					Fields: fields,
+				},
+			},
+		},
+	}
+}
+
+// Business -> Documents
+//
+// @relation
+// @required
+func (businessQueryDocumentsRelations) None(
+	params ...BusinessDocumentWhereParam,
+) businessDefaultParam {
+	var fields []builder.Field
+
+	for _, q := range params {
+		fields = append(fields, q.field())
+	}
+
+	return businessDefaultParam{
+		data: builder.Field{
+			Name: "documents",
+			Fields: []builder.Field{
+				{
+					Name:   "none",
+					Fields: fields,
+				},
+			},
+		},
+	}
+}
+
+func (businessQueryDocumentsRelations) Fetch(
+
+	params ...BusinessDocumentWhereParam,
+
+) businessToDocumentsFindMany {
+	var v businessToDocumentsFindMany
+
+	v.query.Operation = "query"
+	v.query.Method = "documents"
+	v.query.Outputs = businessDocumentOutput
+
+	var where []builder.Field
+	for _, q := range params {
+		if query := q.getQuery(); query.Operation != "" {
+			v.query.Outputs = append(v.query.Outputs, builder.Output{
+				Name:    query.Method,
+				Inputs:  query.Inputs,
+				Outputs: query.Outputs,
+			})
+		} else {
+			where = append(where, q.field())
+		}
+	}
+
+	if len(where) > 0 {
+		v.query.Inputs = append(v.query.Inputs, builder.Input{
+			Name:   "where",
+			Fields: where,
+		})
+	}
+
+	return v
+}
+
+func (r businessQueryDocumentsRelations) Link(
+	params ...BusinessDocumentWhereParam,
+) businessSetParam {
+	var fields []builder.Field
+
+	for _, q := range params {
+		fields = append(fields, q.field())
+	}
+
+	return businessSetParam{
+		data: builder.Field{
+			Name: "documents",
+			Fields: []builder.Field{
+				{
+					Name:   "connect",
+					Fields: builder.TransformEquals(fields),
+
+					List:     true,
+					WrapList: true,
+				},
+			},
+		},
+	}
+}
+
+func (r businessQueryDocumentsRelations) Unlink(
+	params ...BusinessDocumentWhereParam,
+) businessSetParam {
+	var v businessSetParam
+
+	var fields []builder.Field
+	for _, q := range params {
+		fields = append(fields, q.field())
+	}
+	v = businessSetParam{
+		data: builder.Field{
+			Name: "documents",
+			Fields: []builder.Field{
+				{
+					Name:     "disconnect",
+					List:     true,
+					WrapList: true,
+					Fields:   builder.TransformEquals(fields),
+				},
+			},
+		},
+	}
+
+	return v
+}
+
+func (r businessQueryDocumentsBusinessDocument) Field() businessPrismaFields {
+	return businessFieldDocuments
+}
+
 // BusinessDocument acts as a namespaces to access query methods for the BusinessDocument model
 var BusinessDocument = businessDocumentQuery{}
 
@@ -3263,6 +2994,8 @@ type businessDocumentQuery struct {
 	//
 	// @required
 	CreatedAt businessDocumentQueryCreatedAtDateTime
+
+	Business businessDocumentQueryBusinessRelations
 }
 
 func (businessDocumentQuery) Not(params ...BusinessDocumentWhereParam) businessDocumentDefaultParam {
@@ -3667,9 +3400,9 @@ func (r businessDocumentQueryIDString) Field() businessDocumentPrismaFields {
 type businessDocumentQueryBusinessIDString struct{}
 
 // Set the required value of BusinessID
-func (r businessDocumentQueryBusinessIDString) Set(value string) businessDocumentWithPrismaBusinessIDSetParam {
+func (r businessDocumentQueryBusinessIDString) Set(value string) businessDocumentSetParam {
 
-	return businessDocumentWithPrismaBusinessIDSetParam{
+	return businessDocumentSetParam{
 		data: builder.Field{
 			Name:  "businessId",
 			Value: value,
@@ -3679,9 +3412,9 @@ func (r businessDocumentQueryBusinessIDString) Set(value string) businessDocumen
 }
 
 // Set the optional value of BusinessID dynamically
-func (r businessDocumentQueryBusinessIDString) SetIfPresent(value *String) businessDocumentWithPrismaBusinessIDSetParam {
+func (r businessDocumentQueryBusinessIDString) SetIfPresent(value *String) businessDocumentSetParam {
 	if value == nil {
-		return businessDocumentWithPrismaBusinessIDSetParam{}
+		return businessDocumentSetParam{}
 	}
 
 	return r.Set(*value)
@@ -5430,6 +5163,94 @@ func (r businessDocumentQueryCreatedAtDateTime) Field() businessDocumentPrismaFi
 	return businessDocumentFieldCreatedAt
 }
 
+// base struct
+type businessDocumentQueryBusinessBusiness struct{}
+
+type businessDocumentQueryBusinessRelations struct{}
+
+// BusinessDocument -> Business
+//
+// @relation
+// @required
+func (businessDocumentQueryBusinessRelations) Where(
+	params ...BusinessWhereParam,
+) businessDocumentDefaultParam {
+	var fields []builder.Field
+
+	for _, q := range params {
+		fields = append(fields, q.field())
+	}
+
+	return businessDocumentDefaultParam{
+		data: builder.Field{
+			Name: "business",
+			Fields: []builder.Field{
+				{
+					Name:   "is",
+					Fields: fields,
+				},
+			},
+		},
+	}
+}
+
+func (businessDocumentQueryBusinessRelations) Fetch() businessDocumentToBusinessFindUnique {
+	var v businessDocumentToBusinessFindUnique
+
+	v.query.Operation = "query"
+	v.query.Method = "business"
+	v.query.Outputs = businessOutput
+
+	return v
+}
+
+func (r businessDocumentQueryBusinessRelations) Link(
+	params BusinessWhereParam,
+) businessDocumentWithPrismaBusinessSetParam {
+	var fields []builder.Field
+
+	f := params.field()
+	if f.Fields == nil && f.Value == nil {
+		return businessDocumentWithPrismaBusinessSetParam{}
+	}
+
+	fields = append(fields, f)
+
+	return businessDocumentWithPrismaBusinessSetParam{
+		data: builder.Field{
+			Name: "business",
+			Fields: []builder.Field{
+				{
+					Name:   "connect",
+					Fields: builder.TransformEquals(fields),
+				},
+			},
+		},
+	}
+}
+
+func (r businessDocumentQueryBusinessRelations) Unlink() businessDocumentWithPrismaBusinessSetParam {
+	var v businessDocumentWithPrismaBusinessSetParam
+
+	v = businessDocumentWithPrismaBusinessSetParam{
+		data: builder.Field{
+			Name: "business",
+			Fields: []builder.Field{
+				{
+					Name:  "disconnect",
+					Value: true,
+				},
+			},
+		},
+	}
+
+	return v
+}
+
+func (r businessDocumentQueryBusinessBusiness) Field() businessDocumentPrismaFields {
+	return businessDocumentFieldBusiness
+}
+
 // --- template actions.gotpl ---
 var countOutput = []builder.Output{
 	{Name: "count"},
@@ -5442,10 +5263,9 @@ type businessActions struct {
 
 var businessOutput = []builder.Output{
 	{Name: "id"},
+	{Name: "authUserId"},
 	{Name: "name"},
 	{Name: "email"},
-	{Name: "apiKey"},
-	{Name: "secretKey"},
 	{Name: "status"},
 	{Name: "createdAt"},
 	{Name: "updatedAt"},
@@ -5693,6 +5513,84 @@ func (p businessWithPrismaIDEqualsUniqueParam) idField()       {}
 func (businessWithPrismaIDEqualsUniqueParam) unique() {}
 func (businessWithPrismaIDEqualsUniqueParam) equals() {}
 
+type BusinessWithPrismaAuthUserIDEqualsSetParam interface {
+	field() builder.Field
+	getQuery() builder.Query
+	equals()
+	businessModel()
+	authUserIDField()
+}
+
+type BusinessWithPrismaAuthUserIDSetParam interface {
+	field() builder.Field
+	getQuery() builder.Query
+	businessModel()
+	authUserIDField()
+}
+
+type businessWithPrismaAuthUserIDSetParam struct {
+	data  builder.Field
+	query builder.Query
+}
+
+func (p businessWithPrismaAuthUserIDSetParam) field() builder.Field {
+	return p.data
+}
+
+func (p businessWithPrismaAuthUserIDSetParam) getQuery() builder.Query {
+	return p.query
+}
+
+func (p businessWithPrismaAuthUserIDSetParam) businessModel() {}
+
+func (p businessWithPrismaAuthUserIDSetParam) authUserIDField() {}
+
+type BusinessWithPrismaAuthUserIDWhereParam interface {
+	field() builder.Field
+	getQuery() builder.Query
+	businessModel()
+	authUserIDField()
+}
+
+type businessWithPrismaAuthUserIDEqualsParam struct {
+	data  builder.Field
+	query builder.Query
+}
+
+func (p businessWithPrismaAuthUserIDEqualsParam) field() builder.Field {
+	return p.data
+}
+
+func (p businessWithPrismaAuthUserIDEqualsParam) getQuery() builder.Query {
+	return p.query
+}
+
+func (p businessWithPrismaAuthUserIDEqualsParam) businessModel() {}
+
+func (p businessWithPrismaAuthUserIDEqualsParam) authUserIDField() {}
+
+func (businessWithPrismaAuthUserIDSetParam) settable()  {}
+func (businessWithPrismaAuthUserIDEqualsParam) equals() {}
+
+type businessWithPrismaAuthUserIDEqualsUniqueParam struct {
+	data  builder.Field
+	query builder.Query
+}
+
+func (p businessWithPrismaAuthUserIDEqualsUniqueParam) field() builder.Field {
+	return p.data
+}
+
+func (p businessWithPrismaAuthUserIDEqualsUniqueParam) getQuery() builder.Query {
+	return p.query
+}
+
+func (p businessWithPrismaAuthUserIDEqualsUniqueParam) businessModel()   {}
+func (p businessWithPrismaAuthUserIDEqualsUniqueParam) authUserIDField() {}
+
+func (businessWithPrismaAuthUserIDEqualsUniqueParam) unique() {}
+func (businessWithPrismaAuthUserIDEqualsUniqueParam) equals() {}
+
 type BusinessWithPrismaNameEqualsSetParam interface {
 	field() builder.Field
 	getQuery() builder.Query
@@ -5848,162 +5746,6 @@ func (p businessWithPrismaEmailEqualsUniqueParam) emailField()    {}
 
 func (businessWithPrismaEmailEqualsUniqueParam) unique() {}
 func (businessWithPrismaEmailEqualsUniqueParam) equals() {}
-
-type BusinessWithPrismaAPIKeyEqualsSetParam interface {
-	field() builder.Field
-	getQuery() builder.Query
-	equals()
-	businessModel()
-	apiKeyField()
-}
-
-type BusinessWithPrismaAPIKeySetParam interface {
-	field() builder.Field
-	getQuery() builder.Query
-	businessModel()
-	apiKeyField()
-}
-
-type businessWithPrismaAPIKeySetParam struct {
-	data  builder.Field
-	query builder.Query
-}
-
-func (p businessWithPrismaAPIKeySetParam) field() builder.Field {
-	return p.data
-}
-
-func (p businessWithPrismaAPIKeySetParam) getQuery() builder.Query {
-	return p.query
-}
-
-func (p businessWithPrismaAPIKeySetParam) businessModel() {}
-
-func (p businessWithPrismaAPIKeySetParam) apiKeyField() {}
-
-type BusinessWithPrismaAPIKeyWhereParam interface {
-	field() builder.Field
-	getQuery() builder.Query
-	businessModel()
-	apiKeyField()
-}
-
-type businessWithPrismaAPIKeyEqualsParam struct {
-	data  builder.Field
-	query builder.Query
-}
-
-func (p businessWithPrismaAPIKeyEqualsParam) field() builder.Field {
-	return p.data
-}
-
-func (p businessWithPrismaAPIKeyEqualsParam) getQuery() builder.Query {
-	return p.query
-}
-
-func (p businessWithPrismaAPIKeyEqualsParam) businessModel() {}
-
-func (p businessWithPrismaAPIKeyEqualsParam) apiKeyField() {}
-
-func (businessWithPrismaAPIKeySetParam) settable()  {}
-func (businessWithPrismaAPIKeyEqualsParam) equals() {}
-
-type businessWithPrismaAPIKeyEqualsUniqueParam struct {
-	data  builder.Field
-	query builder.Query
-}
-
-func (p businessWithPrismaAPIKeyEqualsUniqueParam) field() builder.Field {
-	return p.data
-}
-
-func (p businessWithPrismaAPIKeyEqualsUniqueParam) getQuery() builder.Query {
-	return p.query
-}
-
-func (p businessWithPrismaAPIKeyEqualsUniqueParam) businessModel() {}
-func (p businessWithPrismaAPIKeyEqualsUniqueParam) apiKeyField()   {}
-
-func (businessWithPrismaAPIKeyEqualsUniqueParam) unique() {}
-func (businessWithPrismaAPIKeyEqualsUniqueParam) equals() {}
-
-type BusinessWithPrismaSecretKeyEqualsSetParam interface {
-	field() builder.Field
-	getQuery() builder.Query
-	equals()
-	businessModel()
-	secretKeyField()
-}
-
-type BusinessWithPrismaSecretKeySetParam interface {
-	field() builder.Field
-	getQuery() builder.Query
-	businessModel()
-	secretKeyField()
-}
-
-type businessWithPrismaSecretKeySetParam struct {
-	data  builder.Field
-	query builder.Query
-}
-
-func (p businessWithPrismaSecretKeySetParam) field() builder.Field {
-	return p.data
-}
-
-func (p businessWithPrismaSecretKeySetParam) getQuery() builder.Query {
-	return p.query
-}
-
-func (p businessWithPrismaSecretKeySetParam) businessModel() {}
-
-func (p businessWithPrismaSecretKeySetParam) secretKeyField() {}
-
-type BusinessWithPrismaSecretKeyWhereParam interface {
-	field() builder.Field
-	getQuery() builder.Query
-	businessModel()
-	secretKeyField()
-}
-
-type businessWithPrismaSecretKeyEqualsParam struct {
-	data  builder.Field
-	query builder.Query
-}
-
-func (p businessWithPrismaSecretKeyEqualsParam) field() builder.Field {
-	return p.data
-}
-
-func (p businessWithPrismaSecretKeyEqualsParam) getQuery() builder.Query {
-	return p.query
-}
-
-func (p businessWithPrismaSecretKeyEqualsParam) businessModel() {}
-
-func (p businessWithPrismaSecretKeyEqualsParam) secretKeyField() {}
-
-func (businessWithPrismaSecretKeySetParam) settable()  {}
-func (businessWithPrismaSecretKeyEqualsParam) equals() {}
-
-type businessWithPrismaSecretKeyEqualsUniqueParam struct {
-	data  builder.Field
-	query builder.Query
-}
-
-func (p businessWithPrismaSecretKeyEqualsUniqueParam) field() builder.Field {
-	return p.data
-}
-
-func (p businessWithPrismaSecretKeyEqualsUniqueParam) getQuery() builder.Query {
-	return p.query
-}
-
-func (p businessWithPrismaSecretKeyEqualsUniqueParam) businessModel()  {}
-func (p businessWithPrismaSecretKeyEqualsUniqueParam) secretKeyField() {}
-
-func (businessWithPrismaSecretKeyEqualsUniqueParam) unique() {}
-func (businessWithPrismaSecretKeyEqualsUniqueParam) equals() {}
 
 type BusinessWithPrismaStatusEqualsSetParam interface {
 	field() builder.Field
@@ -6238,6 +5980,84 @@ func (p businessWithPrismaUpdatedAtEqualsUniqueParam) updatedAtField() {}
 
 func (businessWithPrismaUpdatedAtEqualsUniqueParam) unique() {}
 func (businessWithPrismaUpdatedAtEqualsUniqueParam) equals() {}
+
+type BusinessWithPrismaDocumentsEqualsSetParam interface {
+	field() builder.Field
+	getQuery() builder.Query
+	equals()
+	businessModel()
+	documentsField()
+}
+
+type BusinessWithPrismaDocumentsSetParam interface {
+	field() builder.Field
+	getQuery() builder.Query
+	businessModel()
+	documentsField()
+}
+
+type businessWithPrismaDocumentsSetParam struct {
+	data  builder.Field
+	query builder.Query
+}
+
+func (p businessWithPrismaDocumentsSetParam) field() builder.Field {
+	return p.data
+}
+
+func (p businessWithPrismaDocumentsSetParam) getQuery() builder.Query {
+	return p.query
+}
+
+func (p businessWithPrismaDocumentsSetParam) businessModel() {}
+
+func (p businessWithPrismaDocumentsSetParam) documentsField() {}
+
+type BusinessWithPrismaDocumentsWhereParam interface {
+	field() builder.Field
+	getQuery() builder.Query
+	businessModel()
+	documentsField()
+}
+
+type businessWithPrismaDocumentsEqualsParam struct {
+	data  builder.Field
+	query builder.Query
+}
+
+func (p businessWithPrismaDocumentsEqualsParam) field() builder.Field {
+	return p.data
+}
+
+func (p businessWithPrismaDocumentsEqualsParam) getQuery() builder.Query {
+	return p.query
+}
+
+func (p businessWithPrismaDocumentsEqualsParam) businessModel() {}
+
+func (p businessWithPrismaDocumentsEqualsParam) documentsField() {}
+
+func (businessWithPrismaDocumentsSetParam) settable()  {}
+func (businessWithPrismaDocumentsEqualsParam) equals() {}
+
+type businessWithPrismaDocumentsEqualsUniqueParam struct {
+	data  builder.Field
+	query builder.Query
+}
+
+func (p businessWithPrismaDocumentsEqualsUniqueParam) field() builder.Field {
+	return p.data
+}
+
+func (p businessWithPrismaDocumentsEqualsUniqueParam) getQuery() builder.Query {
+	return p.query
+}
+
+func (p businessWithPrismaDocumentsEqualsUniqueParam) businessModel()  {}
+func (p businessWithPrismaDocumentsEqualsUniqueParam) documentsField() {}
+
+func (businessWithPrismaDocumentsEqualsUniqueParam) unique() {}
+func (businessWithPrismaDocumentsEqualsUniqueParam) equals() {}
 
 type businessDocumentActions struct {
 	// client holds the prisma client
@@ -6964,10 +6784,89 @@ func (p businessDocumentWithPrismaCreatedAtEqualsUniqueParam) createdAtField()  
 func (businessDocumentWithPrismaCreatedAtEqualsUniqueParam) unique() {}
 func (businessDocumentWithPrismaCreatedAtEqualsUniqueParam) equals() {}
 
+type BusinessDocumentWithPrismaBusinessEqualsSetParam interface {
+	field() builder.Field
+	getQuery() builder.Query
+	equals()
+	businessDocumentModel()
+	businessField()
+}
+
+type BusinessDocumentWithPrismaBusinessSetParam interface {
+	field() builder.Field
+	getQuery() builder.Query
+	businessDocumentModel()
+	businessField()
+}
+
+type businessDocumentWithPrismaBusinessSetParam struct {
+	data  builder.Field
+	query builder.Query
+}
+
+func (p businessDocumentWithPrismaBusinessSetParam) field() builder.Field {
+	return p.data
+}
+
+func (p businessDocumentWithPrismaBusinessSetParam) getQuery() builder.Query {
+	return p.query
+}
+
+func (p businessDocumentWithPrismaBusinessSetParam) businessDocumentModel() {}
+
+func (p businessDocumentWithPrismaBusinessSetParam) businessField() {}
+
+type BusinessDocumentWithPrismaBusinessWhereParam interface {
+	field() builder.Field
+	getQuery() builder.Query
+	businessDocumentModel()
+	businessField()
+}
+
+type businessDocumentWithPrismaBusinessEqualsParam struct {
+	data  builder.Field
+	query builder.Query
+}
+
+func (p businessDocumentWithPrismaBusinessEqualsParam) field() builder.Field {
+	return p.data
+}
+
+func (p businessDocumentWithPrismaBusinessEqualsParam) getQuery() builder.Query {
+	return p.query
+}
+
+func (p businessDocumentWithPrismaBusinessEqualsParam) businessDocumentModel() {}
+
+func (p businessDocumentWithPrismaBusinessEqualsParam) businessField() {}
+
+func (businessDocumentWithPrismaBusinessSetParam) settable()  {}
+func (businessDocumentWithPrismaBusinessEqualsParam) equals() {}
+
+type businessDocumentWithPrismaBusinessEqualsUniqueParam struct {
+	data  builder.Field
+	query builder.Query
+}
+
+func (p businessDocumentWithPrismaBusinessEqualsUniqueParam) field() builder.Field {
+	return p.data
+}
+
+func (p businessDocumentWithPrismaBusinessEqualsUniqueParam) getQuery() builder.Query {
+	return p.query
+}
+
+func (p businessDocumentWithPrismaBusinessEqualsUniqueParam) businessDocumentModel() {}
+func (p businessDocumentWithPrismaBusinessEqualsUniqueParam) businessField()         {}
+
+func (businessDocumentWithPrismaBusinessEqualsUniqueParam) unique() {}
+func (businessDocumentWithPrismaBusinessEqualsUniqueParam) equals() {}
+
 // --- template create.gotpl ---
 
 // Creates a single business.
 func (r businessActions) CreateOne(
+	_authUserID BusinessWithPrismaAuthUserIDSetParam,
 	_name BusinessWithPrismaNameSetParam,
 	_email BusinessWithPrismaEmailSetParam,
 
@@ -6984,6 +6883,7 @@ func (r businessActions) CreateOne(
 
 	var fields []builder.Field
 
+	fields = append(fields, _authUserID.field())
 	fields = append(fields, _name.field())
 	fields = append(fields, _email.field())
 
@@ -7038,10 +6938,10 @@ func (r businessCreateOne) Tx() BusinessUniqueTxResult {
 
 // Creates a single businessDocument.
 func (r businessDocumentActions) CreateOne(
-	_businessID BusinessDocumentWithPrismaBusinessIDSetParam,
 	_documentURL BusinessDocumentWithPrismaDocumentURLSetParam,
 	_registrationNo BusinessDocumentWithPrismaRegistrationNoSetParam,
 	_docType BusinessDocumentWithPrismaDocTypeSetParam,
+	_business BusinessDocumentWithPrismaBusinessSetParam,
 
 	optional ...BusinessDocumentSetParam,
 ) businessDocumentCreateOne {
@@ -7056,10 +6956,10 @@ func (r businessDocumentActions) CreateOne(
 
 	var fields []builder.Field
 
-	fields = append(fields, _businessID.field())
 	fields = append(fields, _documentURL.field())
 	fields = append(fields, _registrationNo.field())
 	fields = append(fields, _docType.field())
+	fields = append(fields, _business.field())
 
 	for _, q := range optional {
 		fields = append(fields, q.field())
@@ -7111,6 +7011,560 @@ func (r businessDocumentCreateOne) Tx() BusinessDocumentUniqueTxResult {
 }
 
 // --- template find.gotpl ---
+
+type businessToDocumentsFindUnique struct {
+	query builder.Query
+}
+
+func (r businessToDocumentsFindUnique) getQuery() builder.Query {
+	return r.query
+}
+
+func (r businessToDocumentsFindUnique) ExtractQuery() builder.Query {
+	return r.query
+}
+
+func (r businessToDocumentsFindUnique) with()             {}
+func (r businessToDocumentsFindUnique) businessModel()    {}
+func (r businessToDocumentsFindUnique) businessRelation() {}
+
+func (r businessToDocumentsFindUnique) With(params ...BusinessDocumentRelationWith) businessToDocumentsFindUnique {
+	for _, q := range params {
+		query := q.getQuery()
+		r.query.Outputs = append(r.query.Outputs, builder.Output{
+			Name:    query.Method,
+			Inputs:  query.Inputs,
+			Outputs: query.Outputs,
+		})
+	}
+
+	return r
+}
+
+func (r businessToDocumentsFindUnique) Select(params ...businessPrismaFields) businessToDocumentsFindUnique {
+	var outputs []builder.Output
+
+	for _, param := range params {
+		outputs = append(outputs, builder.Output{
+			Name: string(param),
+		})
+	}
+
+	r.query.Outputs = outputs
+
+	return r
+}
+
+func (r businessToDocumentsFindUnique) Omit(params ...businessPrismaFields) businessToDocumentsFindUnique {
+	var outputs []builder.Output
+
+	var raw []string
+	for _, param := range params {
+		raw = append(raw, string(param))
+	}
+
+	for _, output := range businessOutput {
+		if !slices.Contains(raw, output.Name) {
+			outputs = append(outputs, output)
+		}
+	}
+
+	r.query.Outputs = outputs
+
+	return r
+}
+
+func (r businessToDocumentsFindUnique) Exec(ctx context.Context) (
+	*BusinessModel,
+	error,
+) {
+	var v *BusinessModel
+	if err := r.query.Exec(ctx, &v); err != nil {
+		return nil, err
+	}
+
+	if v == nil {
+		return nil, ErrNotFound
+	}
+
+	return v, nil
+}
+
+func (r businessToDocumentsFindUnique) ExecInner(ctx context.Context) (
+	*InnerBusiness,
+	error,
+) {
+	var v *InnerBusiness
+	if err := r.query.Exec(ctx, &v); err != nil {
+		return nil, err
+	}
+
+	if v == nil {
+		return nil, ErrNotFound
+	}
+
+	return v, nil
+}
+
+func (r businessToDocumentsFindUnique) Update(params ...BusinessSetParam) businessToDocumentsUpdateUnique {
+	r.query.Operation = "mutation"
+	r.query.Method = "updateOne"
+	r.query.Model = "Business"
+
+	var v businessToDocumentsUpdateUnique
+	v.query = r.query
+	var fields []builder.Field
+	for _, q := range params {
+
+		field := q.field()
+
+		_, isJson := field.Value.(types.JSON)
+		if field.Value != nil && !isJson {
+			v := field.Value
+			field.Fields = []builder.Field{
+				{
+					Name:  "set",
+					Value: v,
+				},
+			}
+
+			field.Value = nil
+		}
+
+		fields = append(fields, field)
+	}
+	v.query.Inputs = append(v.query.Inputs, builder.Input{
+		Name:   "data",
+		Fields: fields,
+	})
+	return v
+}
+
+type businessToDocumentsUpdateUnique struct {
+	query builder.Query
+}
+
+func (r businessToDocumentsUpdateUnique) ExtractQuery() builder.Query {
+	return r.query
+}
+
+func (r businessToDocumentsUpdateUnique) businessModel() {}
+
+func (r businessToDocumentsUpdateUnique) Exec(ctx context.Context) (*BusinessModel, error) {
+	var v BusinessModel
+	if err := r.query.Exec(ctx, &v); err != nil {
+		return nil, err
+	}
+	return &v, nil
+}
+
+func (r businessToDocumentsUpdateUnique) Tx() BusinessUniqueTxResult {
+	v := newBusinessUniqueTxResult()
+	v.query = r.query
+	v.query.TxResult = make(chan []byte, 1)
+	return v
+}
+
+func (r businessToDocumentsFindUnique) Delete() businessToDocumentsDeleteUnique {
+	var v businessToDocumentsDeleteUnique
+	v.query = r.query
+	v.query.Operation = "mutation"
+	v.query.Method = "deleteOne"
+	v.query.Model = "Business"
+
+	return v
+}
+
+type businessToDocumentsDeleteUnique struct {
+	query builder.Query
+}
+
+func (r businessToDocumentsDeleteUnique) ExtractQuery() builder.Query {
+	return r.query
+}
+
+func (p businessToDocumentsDeleteUnique) businessModel() {}
+
+func (r businessToDocumentsDeleteUnique) Exec(ctx context.Context) (*BusinessModel, error) {
+	var v BusinessModel
+	if err := r.query.Exec(ctx, &v); err != nil {
+		return nil, err
+	}
+	return &v, nil
+}
+
+func (r businessToDocumentsDeleteUnique) Tx() BusinessUniqueTxResult {
+	v := newBusinessUniqueTxResult()
+	v.query = r.query
+	v.query.TxResult = make(chan []byte, 1)
+	return v
+}
+
+type businessToDocumentsFindFirst struct {
+	query builder.Query
+}
+
+func (r businessToDocumentsFindFirst) getQuery() builder.Query {
+	return r.query
+}
+
+func (r businessToDocumentsFindFirst) ExtractQuery() builder.Query {
+	return r.query
+}
+
+func (r businessToDocumentsFindFirst) with()             {}
+func (r businessToDocumentsFindFirst) businessModel()    {}
+func (r businessToDocumentsFindFirst) businessRelation() {}
+
+func (r businessToDocumentsFindFirst) With(params ...BusinessDocumentRelationWith) businessToDocumentsFindFirst {
+	for _, q := range params {
+		query := q.getQuery()
+		r.query.Outputs = append(r.query.Outputs, builder.Output{
+			Name:    query.Method,
+			Inputs:  query.Inputs,
+			Outputs: query.Outputs,
+		})
+	}
+
+	return r
+}
+
+func (r businessToDocumentsFindFirst) Select(params ...businessPrismaFields) businessToDocumentsFindFirst {
+	var outputs []builder.Output
+
+	for _, param := range params {
+		outputs = append(outputs, builder.Output{
+			Name: string(param),
+		})
+	}
+
+	r.query.Outputs = outputs
+
+	return r
+}
+
+func (r businessToDocumentsFindFirst) Omit(params ...businessPrismaFields) businessToDocumentsFindFirst {
+	var outputs []builder.Output
+
+	var raw []string
+	for _, param := range params {
+		raw = append(raw, string(param))
+	}
+
+	for _, output := range businessOutput {
+		if !slices.Contains(raw, output.Name) {
+			outputs = append(outputs, output)
+		}
+	}
+
+	r.query.Outputs = outputs
+
+	return r
+}
+
+func (r businessToDocumentsFindFirst) OrderBy(params ...BusinessDocumentOrderByParam) businessToDocumentsFindFirst {
+	var fields []builder.Field
+
+	for _, param := range params {
+		fields = append(fields, builder.Field{
+			Name:   param.field().Name,
+			Value:  param.field().Value,
+			Fields: param.field().Fields,
+		})
+	}
+
+	r.query.Inputs = append(r.query.Inputs, builder.Input{
+		Name:     "orderBy",
+		Fields:   fields,
+		WrapList: true,
+	})
+
+	return r
+}
+
+func (r businessToDocumentsFindFirst) Skip(count int) businessToDocumentsFindFirst {
+	r.query.Inputs = append(r.query.Inputs, builder.Input{
+		Name:  "skip",
+		Value: count,
+	})
+	return r
+}
+
+func (r businessToDocumentsFindFirst) Take(count int) businessToDocumentsFindFirst {
+	r.query.Inputs = append(r.query.Inputs, builder.Input{
+		Name:  "take",
+		Value: count,
+	})
+	return r
+}
+
+func (r businessToDocumentsFindFirst) Cursor(cursor BusinessCursorParam) businessToDocumentsFindFirst {
+	r.query.Inputs = append(r.query.Inputs, builder.Input{
+		Name:   "cursor",
+		Fields: []builder.Field{cursor.field()},
+	})
+	return r
+}
+
+func (r businessToDocumentsFindFirst) Exec(ctx context.Context) (
+	*BusinessModel,
+	error,
+) {
+	var v *BusinessModel
+	if err := r.query.Exec(ctx, &v); err != nil {
+		return nil, err
+	}
+
+	if v == nil {
+		return nil, ErrNotFound
+	}
+
+	return v, nil
+}
+
+func (r businessToDocumentsFindFirst) ExecInner(ctx context.Context) (
+	*InnerBusiness,
+	error,
+) {
+	var v *InnerBusiness
+	if err := r.query.Exec(ctx, &v); err != nil {
+		return nil, err
+	}
+
+	if v == nil {
+		return nil, ErrNotFound
+	}
+
+	return v, nil
+}
+
+type businessToDocumentsFindMany struct {
+	query builder.Query
+}
+
+func (r businessToDocumentsFindMany) getQuery() builder.Query {
+	return r.query
+}
+
+func (r businessToDocumentsFindMany) ExtractQuery() builder.Query {
+	return r.query
+}
+
+func (r businessToDocumentsFindMany) with()             {}
+func (r businessToDocumentsFindMany) businessModel()    {}
+func (r businessToDocumentsFindMany) businessRelation() {}
+
+func (r businessToDocumentsFindMany) With(params ...BusinessDocumentRelationWith) businessToDocumentsFindMany {
+	for _, q := range params {
+		query := q.getQuery()
+		r.query.Outputs = append(r.query.Outputs, builder.Output{
+			Name:    query.Method,
+			Inputs:  query.Inputs,
+			Outputs: query.Outputs,
+		})
+	}
+
+	return r
+}
+
+func (r businessToDocumentsFindMany) Select(params ...businessPrismaFields) businessToDocumentsFindMany {
+	var outputs []builder.Output
+
+	for _, param := range params {
+		outputs = append(outputs, builder.Output{
+			Name: string(param),
+		})
+	}
+
+	r.query.Outputs = outputs
+
+	return r
+}
+
+func (r businessToDocumentsFindMany) Omit(params ...businessPrismaFields) businessToDocumentsFindMany {
+	var outputs []builder.Output
+
+	var raw []string
+	for _, param := range params {
+		raw = append(raw, string(param))
+	}
+
+	for _, output := range businessOutput {
+		if !slices.Contains(raw, output.Name) {
+			outputs = append(outputs, output)
+		}
+	}
+
+	r.query.Outputs = outputs
+
+	return r
+}
+
+func (r businessToDocumentsFindMany) OrderBy(params ...BusinessDocumentOrderByParam) businessToDocumentsFindMany {
+	var fields []builder.Field
+
+	for _, param := range params {
+		fields = append(fields, builder.Field{
+			Name:   param.field().Name,
+			Value:  param.field().Value,
+			Fields: param.field().Fields,
+		})
+	}
+
+	r.query.Inputs = append(r.query.Inputs, builder.Input{
+		Name:     "orderBy",
+		Fields:   fields,
+		WrapList: true,
+	})
+
+	return r
+}
+
+func (r businessToDocumentsFindMany) Skip(count int) businessToDocumentsFindMany {
+	r.query.Inputs = append(r.query.Inputs, builder.Input{
+		Name:  "skip",
+		Value: count,
+	})
+	return r
+}
+
+func (r businessToDocumentsFindMany) Take(count int) businessToDocumentsFindMany {
+	r.query.Inputs = append(r.query.Inputs, builder.Input{
+		Name:  "take",
+		Value: count,
+	})
+	return r
+}
+
+func (r businessToDocumentsFindMany) Cursor(cursor BusinessCursorParam) businessToDocumentsFindMany {
+	r.query.Inputs = append(r.query.Inputs, builder.Input{
+		Name:   "cursor",
+		Fields: []builder.Field{cursor.field()},
+	})
+	return r
+}
+
+func (r businessToDocumentsFindMany) Exec(ctx context.Context) (
+	[]BusinessModel,
+	error,
+) {
+	var v []BusinessModel
+	if err := r.query.Exec(ctx, &v); err != nil {
+		return nil, err
+	}
+
+	return v, nil
+}
+
+func (r businessToDocumentsFindMany) ExecInner(ctx context.Context) (
+	[]InnerBusiness,
+	error,
+) {
+	var v []InnerBusiness
+	if err := r.query.Exec(ctx, &v); err != nil {
+		return nil, err
+	}
+
+	return v, nil
+}
+
+func (r businessToDocumentsFindMany) Update(params ...BusinessSetParam) businessToDocumentsUpdateMany {
+	r.query.Operation = "mutation"
+	r.query.Method = "updateMany"
+	r.query.Model = "Business"
+
+	r.query.Outputs = countOutput
+
+	var v businessToDocumentsUpdateMany
+	v.query = r.query
+	var fields []builder.Field
+	for _, q := range params {
+
+		field := q.field()
+
+		_, isJson := field.Value.(types.JSON)
+		if field.Value != nil && !isJson {
+			v := field.Value
+			field.Fields = []builder.Field{
+				{
+					Name:  "set",
+					Value: v,
+				},
+			}
+
+			field.Value = nil
+		}
+
+		fields = append(fields, field)
+	}
+	v.query.Inputs = append(v.query.Inputs, builder.Input{
+		Name:   "data",
+		Fields: fields,
+	})
+	return v
+}
+
+type businessToDocumentsUpdateMany struct {
+	query builder.Query
+}
+
+func (r businessToDocumentsUpdateMany) ExtractQuery() builder.Query {
+	return r.query
+}
+
+func (r businessToDocumentsUpdateMany) businessModel() {}
+
+func (r businessToDocumentsUpdateMany) Exec(ctx context.Context) (*BatchResult, error) {
+	var v BatchResult
+	if err := r.query.Exec(ctx, &v); err != nil {
+		return nil, err
+	}
+	return &v, nil
+}
+
+func (r businessToDocumentsUpdateMany) Tx() BusinessManyTxResult {
+	v := newBusinessManyTxResult()
+	v.query = r.query
+	v.query.TxResult = make(chan []byte, 1)
+	return v
+}
+
+func (r businessToDocumentsFindMany) Delete() businessToDocumentsDeleteMany {
+	var v businessToDocumentsDeleteMany
+	v.query = r.query
+	v.query.Operation = "mutation"
+	v.query.Method = "deleteMany"
+	v.query.Model = "Business"
+
+	v.query.Outputs = countOutput
+
+	return v
+}
+
+type businessToDocumentsDeleteMany struct {
+	query builder.Query
+}
+
+func (r businessToDocumentsDeleteMany) ExtractQuery() builder.Query {
+	return r.query
+}
+
+func (p businessToDocumentsDeleteMany) businessModel() {}
+
+func (r businessToDocumentsDeleteMany) Exec(ctx context.Context) (*BatchResult, error) {
+	var v BatchResult
+	if err := r.query.Exec(ctx, &v); err != nil {
+		return nil, err
+	}
+	return &v, nil
+}
+
+func (r businessToDocumentsDeleteMany) Tx() BusinessManyTxResult {
+	v := newBusinessManyTxResult()
+	v.query = r.query
+	v.query.TxResult = make(chan []byte, 1)
+	return v
+}
 
 type businessFindUnique struct {
 	query builder.Query
@@ -7757,6 +8211,560 @@ func (r businessDeleteMany) Exec(ctx context.Context) (*BatchResult, error) {
 
 func (r businessDeleteMany) Tx() BusinessManyTxResult {
 	v := newBusinessManyTxResult()
+	v.query = r.query
+	v.query.TxResult = make(chan []byte, 1)
+	return v
+}
+
+type businessDocumentToBusinessFindUnique struct {
+	query builder.Query
+}
+
+func (r businessDocumentToBusinessFindUnique) getQuery() builder.Query {
+	return r.query
+}
+
+func (r businessDocumentToBusinessFindUnique) ExtractQuery() builder.Query {
+	return r.query
+}
+
+func (r businessDocumentToBusinessFindUnique) with()                     {}
+func (r businessDocumentToBusinessFindUnique) businessDocumentModel()    {}
+func (r businessDocumentToBusinessFindUnique) businessDocumentRelation() {}
+
+func (r businessDocumentToBusinessFindUnique) With(params ...BusinessRelationWith) businessDocumentToBusinessFindUnique {
+	for _, q := range params {
+		query := q.getQuery()
+		r.query.Outputs = append(r.query.Outputs, builder.Output{
+			Name:    query.Method,
+			Inputs:  query.Inputs,
+			Outputs: query.Outputs,
+		})
+	}
+
+	return r
+}
+
+func (r businessDocumentToBusinessFindUnique) Select(params ...businessDocumentPrismaFields) businessDocumentToBusinessFindUnique {
+	var outputs []builder.Output
+
+	for _, param := range params {
+		outputs = append(outputs, builder.Output{
+			Name: string(param),
+		})
+	}
+
+	r.query.Outputs = outputs
+
+	return r
+}
+
+func (r businessDocumentToBusinessFindUnique) Omit(params ...businessDocumentPrismaFields) businessDocumentToBusinessFindUnique {
+	var outputs []builder.Output
+
+	var raw []string
+	for _, param := range params {
+		raw = append(raw, string(param))
+	}
+
+	for _, output := range businessDocumentOutput {
+		if !slices.Contains(raw, output.Name) {
+			outputs = append(outputs, output)
+		}
+	}
+
+	r.query.Outputs = outputs
+
+	return r
+}
+
+func (r businessDocumentToBusinessFindUnique) Exec(ctx context.Context) (
+	*BusinessDocumentModel,
+	error,
+) {
+	var v *BusinessDocumentModel
+	if err := r.query.Exec(ctx, &v); err != nil {
+		return nil, err
+	}
+
+	if v == nil {
+		return nil, ErrNotFound
+	}
+
+	return v, nil
+}
+
+func (r businessDocumentToBusinessFindUnique) ExecInner(ctx context.Context) (
+	*InnerBusinessDocument,
+	error,
+) {
+	var v *InnerBusinessDocument
+	if err := r.query.Exec(ctx, &v); err != nil {
+		return nil, err
+	}
+
+	if v == nil {
+		return nil, ErrNotFound
+	}
+
+	return v, nil
+}
+
+func (r businessDocumentToBusinessFindUnique) Update(params ...BusinessDocumentSetParam) businessDocumentToBusinessUpdateUnique {
+	r.query.Operation = "mutation"
+	r.query.Method = "updateOne"
+	r.query.Model = "BusinessDocument"
+
+	var v businessDocumentToBusinessUpdateUnique
+	v.query = r.query
+	var fields []builder.Field
+	for _, q := range params {
+
+		field := q.field()
+
+		_, isJson := field.Value.(types.JSON)
+		if field.Value != nil && !isJson {
+			v := field.Value
+			field.Fields = []builder.Field{
+				{
+					Name:  "set",
+					Value: v,
+				},
+			}
+
+			field.Value = nil
+		}
+
+		fields = append(fields, field)
+	}
+	v.query.Inputs = append(v.query.Inputs, builder.Input{
+		Name:   "data",
+		Fields: fields,
+	})
+	return v
+}
+
+type businessDocumentToBusinessUpdateUnique struct {
+	query builder.Query
+}
+
+func (r businessDocumentToBusinessUpdateUnique) ExtractQuery() builder.Query {
+	return r.query
+}
+
+func (r businessDocumentToBusinessUpdateUnique) businessDocumentModel() {}
+
+func (r businessDocumentToBusinessUpdateUnique) Exec(ctx context.Context) (*BusinessDocumentModel, error) {
+	var v BusinessDocumentModel
+	if err := r.query.Exec(ctx, &v); err != nil {
+		return nil, err
+	}
+	return &v, nil
+}
+
+func (r businessDocumentToBusinessUpdateUnique) Tx() BusinessDocumentUniqueTxResult {
+	v := newBusinessDocumentUniqueTxResult()
+	v.query = r.query
+	v.query.TxResult = make(chan []byte, 1)
+	return v
+}
+
+func (r businessDocumentToBusinessFindUnique) Delete() businessDocumentToBusinessDeleteUnique {
+	var v businessDocumentToBusinessDeleteUnique
+	v.query = r.query
+	v.query.Operation = "mutation"
+	v.query.Method = "deleteOne"
+	v.query.Model = "BusinessDocument"
+
+	return v
+}
+
+type businessDocumentToBusinessDeleteUnique struct {
+	query builder.Query
+}
+
+func (r businessDocumentToBusinessDeleteUnique) ExtractQuery() builder.Query {
+	return r.query
+}
+
+func (p businessDocumentToBusinessDeleteUnique) businessDocumentModel() {}
+
+func (r businessDocumentToBusinessDeleteUnique) Exec(ctx context.Context) (*BusinessDocumentModel, error) {
+	var v BusinessDocumentModel
+	if err := r.query.Exec(ctx, &v); err != nil {
+		return nil, err
+	}
+	return &v, nil
+}
+
+func (r businessDocumentToBusinessDeleteUnique) Tx() BusinessDocumentUniqueTxResult {
+	v := newBusinessDocumentUniqueTxResult()
+	v.query = r.query
+	v.query.TxResult = make(chan []byte, 1)
+	return v
+}
+
+type businessDocumentToBusinessFindFirst struct {
+	query builder.Query
+}
+
+func (r businessDocumentToBusinessFindFirst) getQuery() builder.Query {
+	return r.query
+}
+
+func (r businessDocumentToBusinessFindFirst) ExtractQuery() builder.Query {
+	return r.query
+}
+
+func (r businessDocumentToBusinessFindFirst) with()                     {}
+func (r businessDocumentToBusinessFindFirst) businessDocumentModel()    {}
+func (r businessDocumentToBusinessFindFirst) businessDocumentRelation() {}
+
+func (r businessDocumentToBusinessFindFirst) With(params ...BusinessRelationWith) businessDocumentToBusinessFindFirst {
+	for _, q := range params {
+		query := q.getQuery()
+		r.query.Outputs = append(r.query.Outputs, builder.Output{
+			Name:    query.Method,
+			Inputs:  query.Inputs,
+			Outputs: query.Outputs,
+		})
+	}
+
+	return r
+}
+
+func (r businessDocumentToBusinessFindFirst) Select(params ...businessDocumentPrismaFields) businessDocumentToBusinessFindFirst {
+	var outputs []builder.Output
+
+	for _, param := range params {
+		outputs = append(outputs, builder.Output{
+			Name: string(param),
+		})
+	}
+
+	r.query.Outputs = outputs
+
+	return r
+}
+
+func (r businessDocumentToBusinessFindFirst) Omit(params ...businessDocumentPrismaFields) businessDocumentToBusinessFindFirst {
+	var outputs []builder.Output
+
+	var raw []string
+	for _, param := range params {
+		raw = append(raw, string(param))
+	}
+
+	for _, output := range businessDocumentOutput {
+		if !slices.Contains(raw, output.Name) {
+			outputs = append(outputs, output)
+		}
+	}
+
+	r.query.Outputs = outputs
+
+	return r
+}
+
+func (r businessDocumentToBusinessFindFirst) OrderBy(params ...BusinessOrderByParam) businessDocumentToBusinessFindFirst {
+	var fields []builder.Field
+
+	for _, param := range params {
+		fields = append(fields, builder.Field{
+			Name:   param.field().Name,
+			Value:  param.field().Value,
+			Fields: param.field().Fields,
+		})
+	}
+
+	r.query.Inputs = append(r.query.Inputs, builder.Input{
+		Name:     "orderBy",
+		Fields:   fields,
+		WrapList: true,
+	})
+
+	return r
+}
+
+func (r businessDocumentToBusinessFindFirst) Skip(count int) businessDocumentToBusinessFindFirst {
+	r.query.Inputs = append(r.query.Inputs, builder.Input{
+		Name:  "skip",
+		Value: count,
+	})
+	return r
+}
+
+func (r businessDocumentToBusinessFindFirst) Take(count int) businessDocumentToBusinessFindFirst {
+	r.query.Inputs = append(r.query.Inputs, builder.Input{
+		Name:  "take",
+		Value: count,
+	})
+	return r
+}
+
+func (r businessDocumentToBusinessFindFirst) Cursor(cursor BusinessDocumentCursorParam) businessDocumentToBusinessFindFirst {
+	r.query.Inputs = append(r.query.Inputs, builder.Input{
+		Name:   "cursor",
+		Fields: []builder.Field{cursor.field()},
+	})
+	return r
+}
+
+func (r businessDocumentToBusinessFindFirst) Exec(ctx context.Context) (
+	*BusinessDocumentModel,
+	error,
+) {
+	var v *BusinessDocumentModel
+	if err := r.query.Exec(ctx, &v); err != nil {
+		return nil, err
+	}
+
+	if v == nil {
+		return nil, ErrNotFound
+	}
+
+	return v, nil
+}
+
+func (r businessDocumentToBusinessFindFirst) ExecInner(ctx context.Context) (
+	*InnerBusinessDocument,
+	error,
+) {
+	var v *InnerBusinessDocument
+	if err := r.query.Exec(ctx, &v); err != nil {
+		return nil, err
+	}
+
+	if v == nil {
+		return nil, ErrNotFound
+	}
+
+	return v, nil
+}
+
+type businessDocumentToBusinessFindMany struct {
+	query builder.Query
+}
+
+func (r businessDocumentToBusinessFindMany) getQuery() builder.Query {
+	return r.query
+}
+
+func (r businessDocumentToBusinessFindMany) ExtractQuery() builder.Query {
+	return r.query
+}
+
+func (r businessDocumentToBusinessFindMany) with()                     {}
+func (r businessDocumentToBusinessFindMany) businessDocumentModel()    {}
+func (r businessDocumentToBusinessFindMany) businessDocumentRelation() {}
+
+func (r businessDocumentToBusinessFindMany) With(params ...BusinessRelationWith) businessDocumentToBusinessFindMany {
+	for _, q := range params {
+		query := q.getQuery()
+		r.query.Outputs = append(r.query.Outputs, builder.Output{
+			Name:    query.Method,
+			Inputs:  query.Inputs,
+			Outputs: query.Outputs,
+		})
+	}
+
+	return r
+}
+
+func (r businessDocumentToBusinessFindMany) Select(params ...businessDocumentPrismaFields) businessDocumentToBusinessFindMany {
+	var outputs []builder.Output
+
+	for _, param := range params {
+		outputs = append(outputs, builder.Output{
+			Name: string(param),
+		})
+	}
+
+	r.query.Outputs = outputs
+
+	return r
+}
+
+func (r businessDocumentToBusinessFindMany) Omit(params ...businessDocumentPrismaFields) businessDocumentToBusinessFindMany {
+	var outputs []builder.Output
+
+	var raw []string
+	for _, param := range params {
+		raw = append(raw, string(param))
+	}
+
+	for _, output := range businessDocumentOutput {
+		if !slices.Contains(raw, output.Name) {
+			outputs = append(outputs, output)
+		}
+	}
+
+	r.query.Outputs = outputs
+
+	return r
+}
+
+func (r businessDocumentToBusinessFindMany) OrderBy(params ...BusinessOrderByParam) businessDocumentToBusinessFindMany {
+	var fields []builder.Field
+
+	for _, param := range params {
+		fields = append(fields, builder.Field{
+			Name:   param.field().Name,
+			Value:  param.field().Value,
+			Fields: param.field().Fields,
+		})
+	}
+
+	r.query.Inputs = append(r.query.Inputs, builder.Input{
+		Name:     "orderBy",
+		Fields:   fields,
+		WrapList: true,
+	})
+
+	return r
+}
+
+func (r businessDocumentToBusinessFindMany) Skip(count int) businessDocumentToBusinessFindMany {
+	r.query.Inputs = append(r.query.Inputs, builder.Input{
+		Name:  "skip",
+		Value: count,
+	})
+	return r
+}
+
+func (r businessDocumentToBusinessFindMany) Take(count int) businessDocumentToBusinessFindMany {
+	r.query.Inputs = append(r.query.Inputs, builder.Input{
+		Name:  "take",
+		Value: count,
+	})
+	return r
+}
+
+func (r businessDocumentToBusinessFindMany) Cursor(cursor BusinessDocumentCursorParam) businessDocumentToBusinessFindMany {
+	r.query.Inputs = append(r.query.Inputs, builder.Input{
+		Name:   "cursor",
+		Fields: []builder.Field{cursor.field()},
+	})
+	return r
+}
+
+func (r businessDocumentToBusinessFindMany) Exec(ctx context.Context) (
+	[]BusinessDocumentModel,
+	error,
+) {
+	var v []BusinessDocumentModel
+	if err := r.query.Exec(ctx, &v); err != nil {
+		return nil, err
+	}
+
+	return v, nil
+}
+
+func (r businessDocumentToBusinessFindMany) ExecInner(ctx context.Context) (
+	[]InnerBusinessDocument,
+	error,
+) {
+	var v []InnerBusinessDocument
+	if err := r.query.Exec(ctx, &v); err != nil {
+		return nil, err
+	}
+
+	return v, nil
+}
+
+func (r businessDocumentToBusinessFindMany) Update(params ...BusinessDocumentSetParam) businessDocumentToBusinessUpdateMany {
+	r.query.Operation = "mutation"
+	r.query.Method = "updateMany"
+	r.query.Model = "BusinessDocument"
+
+	r.query.Outputs = countOutput
+
+	var v businessDocumentToBusinessUpdateMany
+	v.query = r.query
+	var fields []builder.Field
+	for _, q := range params {
+
+		field := q.field()
+
+		_, isJson := field.Value.(types.JSON)
+		if field.Value != nil && !isJson {
+			v := field.Value
+			field.Fields = []builder.Field{
+				{
+					Name:  "set",
+					Value: v,
+				},
+			}
+
+			field.Value = nil
+		}
+
+		fields = append(fields, field)
+	}
+	v.query.Inputs = append(v.query.Inputs, builder.Input{
+		Name:   "data",
+		Fields: fields,
+	})
+	return v
+}
+
+type businessDocumentToBusinessUpdateMany struct {
+	query builder.Query
+}
+
+func (r businessDocumentToBusinessUpdateMany) ExtractQuery() builder.Query {
+	return r.query
+}
+
+func (r businessDocumentToBusinessUpdateMany) businessDocumentModel() {}
+
+func (r businessDocumentToBusinessUpdateMany) Exec(ctx context.Context) (*BatchResult, error) {
+	var v BatchResult
+	if err := r.query.Exec(ctx, &v); err != nil {
+		return nil, err
+	}
+	return &v, nil
+}
+
+func (r businessDocumentToBusinessUpdateMany) Tx() BusinessDocumentManyTxResult {
+	v := newBusinessDocumentManyTxResult()
+	v.query = r.query
+	v.query.TxResult = make(chan []byte, 1)
+	return v
+}
+
+func (r businessDocumentToBusinessFindMany) Delete() businessDocumentToBusinessDeleteMany {
+	var v businessDocumentToBusinessDeleteMany
+	v.query = r.query
+	v.query.Operation = "mutation"
+	v.query.Method = "deleteMany"
+	v.query.Model = "BusinessDocument"
+
+	v.query.Outputs = countOutput
+
+	return v
+}
+
+type businessDocumentToBusinessDeleteMany struct {
+	query builder.Query
+}
+
+func (r businessDocumentToBusinessDeleteMany) ExtractQuery() builder.Query {
+	return r.query
+}
+
+func (p businessDocumentToBusinessDeleteMany) businessDocumentModel() {}
+
+func (r businessDocumentToBusinessDeleteMany) Exec(ctx context.Context) (*BatchResult, error) {
+	var v BatchResult
+	if err := r.query.Exec(ctx, &v); err != nil {
+		return nil, err
+	}
+	return &v, nil
+}
+
+func (r businessDocumentToBusinessDeleteMany) Tx() BusinessDocumentManyTxResult {
+	v := newBusinessDocumentManyTxResult()
 	v.query = r.query
 	v.query.TxResult = make(chan []byte, 1)
 	return v
@@ -8550,6 +9558,7 @@ func (r businessActions) UpsertOne(
 
 func (r businessUpsertOne) Create(
 
+	_authUserID BusinessWithPrismaAuthUserIDSetParam,
 	_name BusinessWithPrismaNameSetParam,
 	_email BusinessWithPrismaEmailSetParam,
 
@@ -8559,6 +9568,7 @@ func (r businessUpsertOne) Create(
 	v.query = r.query
 
 	var fields []builder.Field
+	fields = append(fields, _authUserID.field())
 	fields = append(fields, _name.field())
 	fields = append(fields, _email.field())
 
@@ -8611,6 +9621,7 @@ func (r businessUpsertOne) Update(
 
 func (r businessUpsertOne) CreateOrUpdate(
 
+	_authUserID BusinessWithPrismaAuthUserIDSetParam,
 	_name BusinessWithPrismaNameSetParam,
 	_email BusinessWithPrismaEmailSetParam,
 
@@ -8620,6 +9631,7 @@ func (r businessUpsertOne) CreateOrUpdate(
 	v.query = r.query
 
 	var fields []builder.Field
+	fields = append(fields, _authUserID.field())
 	fields = append(fields, _name.field())
 	fields = append(fields, _email.field())
 
@@ -8693,10 +9705,10 @@ func (r businessDocumentActions) UpsertOne(
 
 func (r businessDocumentUpsertOne) Create(
 
-	_businessID BusinessDocumentWithPrismaBusinessIDSetParam,
 	_documentURL BusinessDocumentWithPrismaDocumentURLSetParam,
 	_registrationNo BusinessDocumentWithPrismaRegistrationNoSetParam,
 	_docType BusinessDocumentWithPrismaDocTypeSetParam,
+	_business BusinessDocumentWithPrismaBusinessSetParam,
 
 	optional ...BusinessDocumentSetParam,
 ) businessDocumentUpsertOne {
@@ -8704,10 +9716,10 @@ func (r businessDocumentUpsertOne) Create(
 	v.query = r.query
 
 	var fields []builder.Field
-	fields = append(fields, _businessID.field())
 	fields = append(fields, _documentURL.field())
 	fields = append(fields, _registrationNo.field())
 	fields = append(fields, _docType.field())
+	fields = append(fields, _business.field())
 
 	for _, q := range optional {
 		fields = append(fields, q.field())
@@ -8758,10 +9770,10 @@ func (r businessDocumentUpsertOne) Update(
 
 func (r businessDocumentUpsertOne) CreateOrUpdate(
 
-	_businessID BusinessDocumentWithPrismaBusinessIDSetParam,
 	_documentURL BusinessDocumentWithPrismaDocumentURLSetParam,
 	_registrationNo BusinessDocumentWithPrismaRegistrationNoSetParam,
 	_docType BusinessDocumentWithPrismaDocTypeSetParam,
+	_business BusinessDocumentWithPrismaBusinessSetParam,
 
 	optional ...BusinessDocumentSetParam,
 ) businessDocumentUpsertOne {
@@ -8769,10 +9781,10 @@ func (r businessDocumentUpsertOne) CreateOrUpdate(
 	v.query = r.query
 
 	var fields []builder.Field
-	fields = append(fields, _businessID.field())
 	fields = append(fields, _documentURL.field())
 	fields = append(fields, _registrationNo.field())
 	fields = append(fields, _docType.field())
+	fields = append(fields, _business.field())
 
 	for _, q := range optional {
 		fields = append(fields, q.field())

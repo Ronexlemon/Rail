@@ -38,17 +38,18 @@ type BusinessCreateInput struct{
 }
 
 
-func (r *BusinessRepository) CreateBusiness(input BusinessInput)(*db.BusinessModel,error){
+type BusinessData struct{
+	ID  string `json:"auth_user_id"`
+	Name string `json:"name"`
+	Email string `json:"email"`
+}
+
+func (r *BusinessRepository) CreateBusiness(input BusinessData)(*db.BusinessModel,error){
 
 	business, err := r.Client.Business.CreateOne(
+		db.Business.AuthUserID.Set(input.ID),
 		db.Business.Name.Set(input.Name),
 		db.Business.Email.Set(input.Email),
-		//db.Business.BusinessID.Set(input.BusinessId),
-		db.Business.APIKey.Set(input.ApiKey),
-		db.Business.SecretKey.Set(input.SecretKey),
-
-		
-		
 	).Exec(r.Context)
 
 	if err != nil {
@@ -58,19 +59,13 @@ func (r *BusinessRepository) CreateBusiness(input BusinessInput)(*db.BusinessMod
 	return business, nil
 }
 
-func (r *BusinessRepository) CreateNewBusiness(input BusinessCreateInput)(*db.BusinessModel,error){
+func (r *BusinessRepository) CreateNewBusiness(input BusinessData)(*db.BusinessModel,error){
 
 	business, err := r.Client.Business.CreateOne(
+		db.Business.AuthUserID.Set(input.ID),
 		db.Business.Name.Set(input.Name),
 		db.Business.Email.Set(input.Email),
-		//db.Business.BusinessID.Set(input.BusinessId),
-		db.Business.APIKey.Set(input.ApiKey),
-		db.Business.SecretKey.Set(input.SecretKey),
-
-		
-		
 	).Exec(r.Context)
-
 	if err != nil {
 		return nil, err
 	}
