@@ -4,10 +4,9 @@ go 1.25.3
 
 require google.golang.org/grpc v1.76.0
 
-require github.com/ronexlemon/rail/micro-services/wallet-service v0.0.0-20251112130022-25cf0155fb81 // indirect
-
 require (
 	github.com/ronexlemon/rail/micro-services/auth-service v0.0.0-20251112115529-39d32001e357
+	github.com/ronexlemon/rail/micro-services/wallet-service v0.0.0-20251112140306-cdca7b478182
 	golang.org/x/net v0.42.0 // indirect
 	golang.org/x/sys v0.36.0 // indirect
 	golang.org/x/text v0.27.0 // indirect

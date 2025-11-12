@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	pb "github.com/ronexlemon/rail/micro-services/wallet-service/proto"
@@ -104,6 +105,12 @@ func CreateCustomerWalletHandler(w http.ResponseWriter, r *http.Request) {
 //Wallets
 
 func WalletsHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Extract businessID from context
 	businessIDValue := r.Context().Value("businessID")
 	if businessIDValue == nil {
 		http.Error(w, "businessID not found in context", http.StatusUnauthorized)
@@ -111,11 +118,7 @@ func WalletsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	businessID := businessIDValue.(string)
 
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
+	// Connect to Wallet Service via gRPC
 	conn, err := grpc.Dial("wallet-service:50052", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Printf("failed to connect to wallet-service: %v", err)
@@ -129,16 +132,70 @@ func WalletsHandler(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	resp, err := client.CreateWallet(ctx, &pb.CreateWalletRequest{
+	// Call BusinessWallet RPC
+	resp, err := client.BusinessWallet(ctx, &pb.BusinessWalletRequest{
 		BusinessId: businessID,
-		Type:       pb.WalletType_BUSINESS,
 	})
 	if err != nil {
-		log.Printf("error creating business wallet: %v", err)
-		http.Error(w, "failed to create wallet", http.StatusInternalServerError)
+		log.Printf("error fetching business wallets: %v", err)
+		http.Error(w, "failed to fetch wallets", http.StatusInternalServerError)
 		return
 	}
 
+	// Return JSON response
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(resp)
+}
+
+
+func CustomerWalletsHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Extract businessID from context
+	businessIDValue := r.Context().Value("businessID")
+	if businessIDValue == nil {
+		http.Error(w, "businessID not found in context", http.StatusUnauthorized)
+		return
+	}
+	businessID := businessIDValue.(string)
+
+	// Extract customerId from URL: /v0/wallet/{customerId}
+	pathParts := strings.Split(r.URL.Path, "/")
+	if len(pathParts) < 4 || pathParts[3] == "" {
+		http.Error(w, "customerId required in path", http.StatusBadRequest)
+		return
+	}
+	customerID := pathParts[3]
+
+	// Connect to Wallet Service via gRPC
+	conn, err := grpc.Dial("wallet-service:50052", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Printf("failed to connect to wallet-service: %v", err)
+		http.Error(w, "service unavailable", http.StatusServiceUnavailable)
+		return
+	}
+	defer conn.Close()
+
+	client := pb.NewWalletServiceClient(conn)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// Call BusinessWallet RPC with customerId
+	resp, err := client.BusinessWallet(ctx, &pb.BusinessWalletRequest{
+		BusinessId: businessID,
+		CustomerId: customerID,
+	})
+	if err != nil {
+		log.Printf("error fetching customer wallets: %v", err)
+		http.Error(w, "failed to fetch wallets", http.StatusInternalServerError)
+		return
+	}
+
+	// Return JSON response
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resp)
 }
