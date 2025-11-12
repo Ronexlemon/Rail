@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"time"
 
 	"github.com/ronexlemon/rail/micro-services/wallet-service/internal/repository"
 	"github.com/ronexlemon/rail/micro-services/wallet-service/internal/service"
@@ -82,6 +83,45 @@ func (s *WalletGRPCServer) CreateWallet(ctx context.Context, req *pb.CreateWalle
 		CustomerId: custID,
 		Type:       pbWalletType,
 		Message:    "Wallet created successfully",
+	}, nil
+}
+
+func (s *WalletGRPCServer) BusinessWallet(ctx context.Context, req *pb.BusinessWalletRequest) (*pb.BusinessWalletResponse, error) {
+	if req.BusinessId == "" && req.CustomerId == "" {
+		return nil, fmt.Errorf("either business_id or customer_id must be provided")
+	}
+
+	var customerID *string
+	if req.CustomerId != "" {
+		customerID = &req.CustomerId
+	}
+
+	// Fetch wallets from service
+	wallets, err := s.service.BusinessWallet(ctx, req.BusinessId, customerID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get wallets: %v", err)
+	}
+
+	var pbWallets []*pb.Wallet
+	for _, w := range wallets {
+		
+		  addresses := w.Addresses()
+
+
+		for _, addr := range addresses {
+			pbWallets = append(pbWallets, &pb.Wallet{
+				WalletId:  w.ID,
+				Address:   addr.Address,
+				Network:   string(addr.Network),
+				Type:      pb.WalletType(pb.WalletType_value[string(w.Type)]),
+				CreatedAt: w.CreatedAt.Format(time.RFC3339),
+			})
+		}
+	}
+
+	return &pb.BusinessWalletResponse{
+		Wallets: pbWallets,
+		Message: "wallets retrieved successfully",
 	}, nil
 }
 

@@ -97,3 +97,37 @@ func (s *WalletService) CreateWallet(ctx context.Context, businessID string, cus
 	log.Println("Wallet and all network addresses created successfully")
 	return wallet, nil
 }
+
+
+func (s *WalletService) BusinessWallet(ctx context.Context, businessID string, customerID *string) ([]db.WalletModel, error) {
+	if businessID == "" && (customerID == nil || *customerID == "") {
+		return nil, fmt.Errorf("either businessID or customerID must be provided")
+	}
+
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	default:
+	}
+
+	log.Printf("Fetching wallets for businessID=%s, customerID=%v", businessID, customerID)
+
+	var (
+		wallets []db.WalletModel
+		err     error
+	)
+
+	// Fetch depending on whether customerID is provided
+	if customerID != nil && *customerID != "" {
+		wallets, err = s.repo.GetBusinessCustomerWallets(businessID, *customerID)
+	} else {
+		wallets, err = s.repo.GetBusinessWallets(businessID)
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch wallets: %w", err)
+	}
+
+	log.Printf("Fetched %d wallet(s) for businessID=%s", len(wallets), businessID)
+	return wallets, nil
+}

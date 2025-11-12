@@ -133,3 +133,45 @@ func (r *WalletRepository) CreateWalletAddress(walletID string, network db.Netwo
 	}
 	return nil
 }
+
+
+func (r *WalletRepository) GetBusinessWallets(businessId string) ([]db.WalletModel, error) {
+	if r.Client == nil {
+		return nil, fmt.Errorf("prisma client is nil")
+	}
+
+	wallets, err := r.Client.Wallet.FindMany(
+		db.Wallet.BusinessID.Equals(businessId),
+	).With(
+		db.Wallet.Addresses.Fetch(),
+		db.Wallet.VirtualAccounts.Fetch(),
+	).Exec(context.Background())
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch wallets: %w", err)
+	}
+
+	return wallets, nil
+}
+
+func (r *WalletRepository) GetBusinessCustomerWallets(businessId,customerId string) ([]db.WalletModel, error) {
+	if r.Client == nil {
+		return nil, fmt.Errorf("prisma client is nil")
+	}
+
+	wallets, err := r.Client.Wallet.FindMany(
+	db.Wallet.And(
+		db.Wallet.BusinessID.Equals(businessId),
+		db.Wallet.CustomerID.Equals(customerId),
+	),
+).With(
+	db.Wallet.Addresses.Fetch(),
+	db.Wallet.VirtualAccounts.Fetch(),
+).Exec(r.Context)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch wallets: %w", err)
+	}
+
+	return wallets, nil
+}
