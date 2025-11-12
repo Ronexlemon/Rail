@@ -5,6 +5,7 @@ option go_package = "github.com/ronexlemon/rail/micro-services/auth-service/prot
 
 service AuthService {
   rpc GetBusinessByKeys(GetBusinessByKeysRequest) returns (GetBusinessByKeysResponse) {}
+  rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse) {}
 }
 
 message GetBusinessByKeysRequest {
@@ -15,4 +16,26 @@ message GetBusinessByKeysRequest {
 message GetBusinessByKeysResponse {
   string business_id = 1;
   string status = 2; 
+}
+
+/***
+---------------------------------
+Business Registration
+*********/
+
+
+
+message RegisterUserRequest {
+  string email = 1;
+  string password = 2;
+  string role = 3; // ADMIN or BUSINESS
+  string name = 4;
+}
+
+message RegisterUserResponse {
+  string user_id = 1;
+  string api_key = 2;
+  string secret_key = 3;
+  string status = 4;
+  string message = 5;
 }

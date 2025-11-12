@@ -24,11 +24,11 @@ func NewBusinessRepository() *BusinessRepository {
 }
 
 // CreateBusiness creates a new business user
-func (r *BusinessRepository) CreateBusiness(email ,name string,apiKey,secretKey string) (*db.UserModel, error) {
+func (r *BusinessRepository) CreateBusiness(email ,name,passwordHash ,apiKey,secretKey string) (*db.UserModel, error) {
 
 	user, err := r.client.User.CreateOne(
 		db.User.Email.Set(email),
-		db.User.PasswordHash.Set(name),         
+		db.User.PasswordHash.Set(passwordHash),         
 		db.User.Role.Set("BUSINESS"),        
 		db.User.APIKey.Set(apiKey),
 		db.User.SecretKey.Set(secretKey),		

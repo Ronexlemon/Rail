@@ -125,6 +125,150 @@ func (x *GetBusinessByKeysResponse) GetStatus() string {
 	return ""
 }
 
+type RegisterUserRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
+	Role          string                 `protobuf:"bytes,3,opt,name=role,proto3" json:"role,omitempty"` // ADMIN or BUSINESS
+	Name          string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RegisterUserRequest) Reset() {
+	*x = RegisterUserRequest{}
+	mi := &file_proto_auth_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RegisterUserRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RegisterUserRequest) ProtoMessage() {}
+
+func (x *RegisterUserRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_auth_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RegisterUserRequest.ProtoReflect.Descriptor instead.
+func (*RegisterUserRequest) Descriptor() ([]byte, []int) {
+	return file_proto_auth_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *RegisterUserRequest) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *RegisterUserRequest) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
+func (x *RegisterUserRequest) GetRole() string {
+	if x != nil {
+		return x.Role
+	}
+	return ""
+}
+
+func (x *RegisterUserRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+type RegisterUserResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ApiKey        string                 `protobuf:"bytes,2,opt,name=api_key,json=apiKey,proto3" json:"api_key,omitempty"`
+	SecretKey     string                 `protobuf:"bytes,3,opt,name=secret_key,json=secretKey,proto3" json:"secret_key,omitempty"`
+	Status        string                 `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"`
+	Message       string                 `protobuf:"bytes,5,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RegisterUserResponse) Reset() {
+	*x = RegisterUserResponse{}
+	mi := &file_proto_auth_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RegisterUserResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RegisterUserResponse) ProtoMessage() {}
+
+func (x *RegisterUserResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_auth_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RegisterUserResponse.ProtoReflect.Descriptor instead.
+func (*RegisterUserResponse) Descriptor() ([]byte, []int) {
+	return file_proto_auth_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *RegisterUserResponse) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *RegisterUserResponse) GetApiKey() string {
+	if x != nil {
+		return x.ApiKey
+	}
+	return ""
+}
+
+func (x *RegisterUserResponse) GetSecretKey() string {
+	if x != nil {
+		return x.SecretKey
+	}
+	return ""
+}
+
+func (x *RegisterUserResponse) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *RegisterUserResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
 var File_proto_auth_proto protoreflect.FileDescriptor
 
 const file_proto_auth_proto_rawDesc = "" +
@@ -137,9 +281,22 @@ const file_proto_auth_proto_rawDesc = "" +
 	"\x19GetBusinessByKeysResponse\x12\x1f\n" +
 	"\vbusiness_id\x18\x01 \x01(\tR\n" +
 	"businessId\x12\x16\n" +
-	"\x06status\x18\x02 \x01(\tR\x06status2g\n" +
+	"\x06status\x18\x02 \x01(\tR\x06status\"o\n" +
+	"\x13RegisterUserRequest\x12\x14\n" +
+	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
+	"\bpassword\x18\x02 \x01(\tR\bpassword\x12\x12\n" +
+	"\x04role\x18\x03 \x01(\tR\x04role\x12\x12\n" +
+	"\x04name\x18\x04 \x01(\tR\x04name\"\x99\x01\n" +
+	"\x14RegisterUserResponse\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x17\n" +
+	"\aapi_key\x18\x02 \x01(\tR\x06apiKey\x12\x1d\n" +
+	"\n" +
+	"secret_key\x18\x03 \x01(\tR\tsecretKey\x12\x16\n" +
+	"\x06status\x18\x04 \x01(\tR\x06status\x12\x18\n" +
+	"\amessage\x18\x05 \x01(\tR\amessage2\xb2\x01\n" +
 	"\vAuthService\x12X\n" +
-	"\x11GetBusinessByKeys\x12\x1f.proto.GetBusinessByKeysRequest\x1a .proto.GetBusinessByKeysResponse\"\x00BDZBgithub.com/ronexlemon/rail/micro-services/auth-service/proto;protob\x06proto3"
+	"\x11GetBusinessByKeys\x12\x1f.proto.GetBusinessByKeysRequest\x1a .proto.GetBusinessByKeysResponse\"\x00\x12I\n" +
+	"\fRegisterUser\x12\x1a.proto.RegisterUserRequest\x1a\x1b.proto.RegisterUserResponse\"\x00BDZBgithub.com/ronexlemon/rail/micro-services/auth-service/proto;protob\x06proto3"
 
 var (
 	file_proto_auth_proto_rawDescOnce sync.Once
@@ -153,16 +310,20 @@ func file_proto_auth_proto_rawDescGZIP() []byte {
 	return file_proto_auth_proto_rawDescData
 }
 
-var file_proto_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_proto_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_proto_auth_proto_goTypes = []any{
 	(*GetBusinessByKeysRequest)(nil),  // 0: proto.GetBusinessByKeysRequest
 	(*GetBusinessByKeysResponse)(nil), // 1: proto.GetBusinessByKeysResponse
+	(*RegisterUserRequest)(nil),       // 2: proto.RegisterUserRequest
+	(*RegisterUserResponse)(nil),      // 3: proto.RegisterUserResponse
 }
 var file_proto_auth_proto_depIdxs = []int32{
 	0, // 0: proto.AuthService.GetBusinessByKeys:input_type -> proto.GetBusinessByKeysRequest
-	1, // 1: proto.AuthService.GetBusinessByKeys:output_type -> proto.GetBusinessByKeysResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
+	2, // 1: proto.AuthService.RegisterUser:input_type -> proto.RegisterUserRequest
+	1, // 2: proto.AuthService.GetBusinessByKeys:output_type -> proto.GetBusinessByKeysResponse
+	3, // 3: proto.AuthService.RegisterUser:output_type -> proto.RegisterUserResponse
+	2, // [2:4] is the sub-list for method output_type
+	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -179,7 +340,7 @@ func file_proto_auth_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_auth_proto_rawDesc), len(file_proto_auth_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
