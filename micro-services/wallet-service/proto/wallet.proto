@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "github.com/ronexlemon/rail/micro-services/wallet-service/proto;proto";
+
+
+service WalletService {
+  rpc CreateWallet(CreateWalletRequest) returns (CreateWalletResponse) {}
+}
+
+
+message CreateWalletRequest {
+  string business_id = 1; 
+  string customer_id = 2; 
+  WalletType type = 3;    
+}
+
+message CreateWalletResponse {
+  string wallet_id = 1;
+  string business_id = 2;
+  string customer_id = 3;
+  WalletType type = 4;
+  string message = 5;
+}
+
+
+enum WalletType {
+  BUSINESS = 0;
+  CUSTOMER = 1;
+}

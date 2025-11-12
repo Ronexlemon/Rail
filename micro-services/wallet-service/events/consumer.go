@@ -81,7 +81,7 @@ func startConsumer(ctx context.Context, brokerURL, groupID string) error {
 			//PublishEvent(string(key),value)
 			repo:=repository.NewWalletRepository()
 			service:= service.NewWalletService(repo)
-			service.CreateWallet(payload.ID,&payload.CustomerId,db.WalletTypeBusiness)
+			service.CreateWallet(ctx,payload.ID,&payload.CustomerId,db.WalletTypeBusiness,)
 		})
 	}()
 

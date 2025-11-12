@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -19,29 +20,44 @@ func NewWalletService(repo *repository.WalletRepository) *WalletService {
 
 // CreateWallet will create a Wallet and automatically create WalletAddresses
 // for all 3 supported networks (EVM, SOLANA, TRON)
-func (s *WalletService) CreateWallet(businessID string, customerID *string, walletType db.WalletType) (*db.WalletModel, error) {
-	if businessID == "" && customerID == nil {
+func (s *WalletService) CreateWallet(ctx context.Context, businessID string, customerID *string, walletType db.WalletType) (*db.WalletModel, error) {
+	if businessID == "" && (customerID == nil || *customerID == "") {
 		return nil, fmt.Errorf("either businessID or customerID must be provided")
+	}
+
+	
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	default:
 	}
 
 	log.Printf("Creating wallet for businessID=%s customerID=%v", businessID, customerID)
 
-	
+	// Prepare input
 	walletInput := repository.CreateWalletInput{
 		BusinessID: businessID,
 		CustomerID: customerID,
 		Type:       walletType,
 	}
 
+	// Create wallet in DB
 	wallet, err := s.repo.CreateWallet(walletInput)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create wallet: %w", err)
 	}
 
-	
+	// Supported networks
 	networks := []db.Network{db.NetworkEvm, db.NetworkSolana, db.NetworkTron}
 
 	for _, network := range networks {
+		// Check context before each network operation
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
+
 		var address, privateKey string
 
 		switch network {
@@ -60,7 +76,7 @@ func (s *WalletService) CreateWallet(businessID string, customerID *string, wall
 			privateKey = result.PrivateKey
 
 		case db.NetworkTron:
-			result,err := chains.CreateTronWallet()
+			result, err := chains.CreateTronWallet()
 			if err != nil {
 				log.Printf("Tron wallet creation failed: %v", err)
 				continue
@@ -69,15 +85,15 @@ func (s *WalletService) CreateWallet(businessID string, customerID *string, wall
 			privateKey = result.PrivateKey
 		}
 
-		
+		// Save wallet address
 		err = s.repo.CreateWalletAddress(wallet.ID, network, address, privateKey)
 		if err != nil {
 			log.Printf("Failed to save %s wallet address: %v", network, err)
 		} else {
-			log.Printf(" %s wallet created: %s", network, address)
+			log.Printf("%s wallet created: %s", network, address)
 		}
 	}
 
-	log.Println(" Wallet and all network addresses created successfully")
+	log.Println("Wallet and all network addresses created successfully")
 	return wallet, nil
 }

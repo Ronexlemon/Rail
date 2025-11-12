@@ -112,6 +112,7 @@ services:
       SERVICE_PORT: 8083
       DATABASE_URL: postgres://admin:admin@postgres:5432/main?sslmode=disable&schema=wallet
       KAFKA_BROKERS: kafka:9092
+      GRPC_PORT: 50052
     ports:
       - "8083:8083"
     networks:
@@ -228,7 +229,7 @@ services:
       SERVICE_NAME: api-gateway
       SERVICE_PORT: 8080
       AUTH_GRPC: auth-service:50051
-      BUSINESS_GRPC: business-service:50052
+      WALLET_GRPC: business-service:50052
       TRANSACTION_GRPC: transaction-service:50053
     ports:
       - "8080:8080"

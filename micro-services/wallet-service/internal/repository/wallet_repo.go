@@ -99,12 +99,12 @@ type CreateWalletInput struct {
 // ✅ Create the main wallet for a business or customer
 func (r *WalletRepository) CreateWallet(input CreateWalletInput) (*db.WalletModel, error) {
 	if r.Client == nil {
-		return nil, fmt.Errorf("Prisma client is nil")
+		return nil, fmt.Errorf("prisma client is nil")
 	}
 
 	wallet, err := r.Client.Wallet.CreateOne(
-		db.Wallet.BusinessID.Set(input.BusinessID),
 		db.Wallet.Type.Set(input.Type),
+		db.Wallet.BusinessID.Set(input.BusinessID),
 		db.Wallet.CustomerID.SetOptional(input.CustomerID),
 	).Exec(r.Context)
 
@@ -118,7 +118,7 @@ func (r *WalletRepository) CreateWallet(input CreateWalletInput) (*db.WalletMode
 // ✅ Create wallet address for a specific network
 func (r *WalletRepository) CreateWalletAddress(walletID string, network db.Network, address string, privateKey string) error {
 	if r.Client == nil {
-		return fmt.Errorf("Prisma client is nil")
+		return fmt.Errorf("prisma client is nil")
 	}
 
 	_, err := r.Client.WalletAddress.CreateOne(

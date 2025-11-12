@@ -6,32 +6,55 @@ datasource db {
 generator db {
     provider = "go run github.com/steebchen/prisma-client-go"
 }
-
 model Wallet {
     id         String          @id @default(uuid())
-    businessId String          // from Business Service
+    businessId String?         // from Business Service
     customerId String?         // from Business Customer Service (if end-user)
     type       WalletType
     createdAt  DateTime        @default(now())
     updatedAt  DateTime        @updatedAt
     addresses  WalletAddress[] // One-to-many relationship
+    virtualAccounts VirtualAccount[] // One wallet can have multiple virtual accounts
 
     @@index([businessId])
     @@index([customerId])
 }
 
+// -----------------------------
+// Blockchain Addresses
+// -----------------------------
 model WalletAddress {
-    id        String  @id @default(uuid())
-    walletId  String
-    network   Network
-    address   String  @unique
+    id         String  @id @default(uuid())
+    walletId   String
+    network    Network
+    address    String  @unique
     privateKey String
-    createdAt DateTime @default(now())
-    wallet   Wallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
+    createdAt  DateTime @default(now())
+    wallet     Wallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
 
     @@index([walletId])
 }
 
+// -----------------------------
+// Virtual Accounts
+// -----------------------------
+model VirtualAccount {
+    id        String   @id @default(uuid())
+    walletId  String
+    currency  String
+    balance   Float    @default(0)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    wallet    Wallet   @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+    @@index([walletId])
+    @@unique([walletId, currency]) // One virtual account per currency per wallet
+}
+
+// -----------------------------
+// Enums
+// -----------------------------
 enum WalletType {
     BUSINESS
     CUSTOMER

@@ -8,6 +8,7 @@ import (
 	//"github.com/ronexlemon/rail/micro-services/wallet-service/utils/chains"
 	"github.com/ronexlemon/rail/micro-services/wallet-service/database"
 	"github.com/ronexlemon/rail/micro-services/wallet-service/events"
+	"github.com/ronexlemon/rail/micro-services/wallet-service/grpcserver"
 )
 
 func main(){
@@ -18,16 +19,13 @@ func main(){
 
 	}
 	fmt.Println("DB runing")
-	defer db.Client.Disconnect()
-	events.ConsumeRegister()
-	// address,privateKey:=chains.CreateEVMWallet()
-	// fmt.Println("Address",address)
-	// fmt.Println("PrivateKey",privateKey)
-	// d,_:=chains.CreateSolanaWallet()
-	// fmt.Println("Solana",d.Address)
-	// fmt.Println("Solana priv",d.PrivateKey)
-	// t,_:=chains.CreateTronWallet()
-	// fmt.Println("Tron",t.Address)
-	// fmt.Println("Tron",t.PrivateKey)
-	//select{}
+	defer func() {
+	if err := db.Client.Disconnect(); err != nil {
+		log.Printf("Error disconnecting DB: %v", err)
+	}
+}()
+	go events.ConsumeRegister()
+	go grpcserver.ServerGrpc()
+	
+	select{}
 }
