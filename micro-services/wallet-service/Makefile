@@ -1,5 +1,6 @@
 # -----------------------
-# VARIABLES
+# VARIABLES. solc --abi erc20.sol -o .
+#abigen --abi=IERC20.abi --pkg=token --out=erc20.go
 # -----------------------
 GO := go
 TOPIC_CMD := ./shared/kafka/topics/cmd/register.go
@@ -9,12 +10,23 @@ PRISMA_GENERATE_CMD := github.com/steebchen/prisma-client-go
 PROTO_DIR := ./proto
 PROTO_OUT := ./proto
 
+
+SOLC := solc
+ABIGEN := abigen
+ABI_DIR := ./utils/helpers/tokens/abi   # folder containing the contract
+SOL_CONTRACT := $(ABI_DIR)/erc20.sol
+ABI_OUT := $(ABI_DIR)/IERC20.abi
+GO_OUT := $(ABI_DIR)/erc20.go
+PKG := token
+
+
+
 # -----------------------
 # TARGETS
 # -----------------------
 
 .PHONY: all
-all: topics dbpush dbgenerate protos
+all: topics dbpush dbgenerate protos contract
 
 .PHONY: topics
 topics:
@@ -43,6 +55,14 @@ protos:
 		$(PROTO_DIR)/*.proto
 	@echo "✅ Proto compilation complete!"
 
+
+.PHONY: contract
+contract:
+	@echo "🚀 Compiling Solidity contract and generating Go bindings..."
+	$(SOLC) --abi ./utils/helpers/tokens/abi/erc20.sol -o ./utils/helpers/tokens/abi
+	$(ABIGEN) --abi= ./utils/helpers/tokens/abi/IERC20.abi --pkg=token --out=erc20.go
+	@echo "✅ Contract Go bindings generated!"
+	
 .PHONY: clean
 clean:
 	@echo "🧹 Cleaning Go build cache..."
