@@ -84,6 +84,7 @@ func NewWalletRepository() *WalletRepository {
 	if database.PrismaDBClient.Client == nil {
 		panic("Prisma client not initialized")
 	}
+	
 	return &WalletRepository{
 		Client:  database.PrismaDBClient.Client,
 		Context: database.PrismaDBClient.Context,

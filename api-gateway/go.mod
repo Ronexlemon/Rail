@@ -3,7 +3,7 @@ module github.com/ronexlemon/rail/api-gateway
 go 1.25.3
 
 require (
-	github.com/ronexlemon/rail/micro-services/wallet-service v0.0.0-20251112180932-78c435ae17dc
+	github.com/ronexlemon/rail/micro-services/wallet-service v0.0.0-20251113113246-8bcd41d4861b
 	google.golang.org/grpc v1.76.0
 )
 

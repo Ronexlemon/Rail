@@ -53,6 +53,22 @@ func main() {
 		}
 	})))
 
+
+	//balances
+	mux.Handle("/v0/wallet/balance", middleware.AuthMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodPost:
+			// Create wallet (business or customer)
+			//handler.CreateWalletHandler(w, r)
+		case http.MethodGet:
+			// Fetch wallet balances
+			// Optional query parameters: ?customerId=xxx&network=evm
+			handler.WalletsBalanceHandler(w, r)
+		default:
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		}
+	})))
+
 	fmt.Println("API Gateway running on :8080")
 	if err := http.ListenAndServe(":8080", mux); err != nil {
 		fmt.Println("Failed to start server:", err)

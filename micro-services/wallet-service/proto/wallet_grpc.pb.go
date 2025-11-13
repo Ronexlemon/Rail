@@ -19,9 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	WalletService_CreateWallet_FullMethodName   = "/proto.WalletService/CreateWallet"
-	WalletService_BusinessWallet_FullMethodName = "/proto.WalletService/BusinessWallet"
-	WalletService_WalletBalance_FullMethodName  = "/proto.WalletService/WalletBalance"
+	WalletService_CreateWallet_FullMethodName       = "/proto.WalletService/CreateWallet"
+	WalletService_BusinessWallet_FullMethodName     = "/proto.WalletService/BusinessWallet"
+	WalletService_WalletBalance_FullMethodName      = "/proto.WalletService/WalletBalance"
+	WalletService_WalletChainBalance_FullMethodName = "/proto.WalletService/WalletChainBalance"
 )
 
 // WalletServiceClient is the client API for WalletService service.
@@ -31,6 +32,7 @@ type WalletServiceClient interface {
 	CreateWallet(ctx context.Context, in *CreateWalletRequest, opts ...grpc.CallOption) (*CreateWalletResponse, error)
 	BusinessWallet(ctx context.Context, in *BusinessWalletRequest, opts ...grpc.CallOption) (*BusinessWalletResponse, error)
 	WalletBalance(ctx context.Context, in *WalletBalanceRequest, opts ...grpc.CallOption) (*WalletBalanceResponse, error)
+	WalletChainBalance(ctx context.Context, in *WalletBalanceRequest, opts ...grpc.CallOption) (*WalletChainBalanceResponse, error)
 }
 
 type walletServiceClient struct {
@@ -71,6 +73,16 @@ func (c *walletServiceClient) WalletBalance(ctx context.Context, in *WalletBalan
 	return out, nil
 }
 
+func (c *walletServiceClient) WalletChainBalance(ctx context.Context, in *WalletBalanceRequest, opts ...grpc.CallOption) (*WalletChainBalanceResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(WalletChainBalanceResponse)
+	err := c.cc.Invoke(ctx, WalletService_WalletChainBalance_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // WalletServiceServer is the server API for WalletService service.
 // All implementations must embed UnimplementedWalletServiceServer
 // for forward compatibility.
@@ -78,6 +90,7 @@ type WalletServiceServer interface {
 	CreateWallet(context.Context, *CreateWalletRequest) (*CreateWalletResponse, error)
 	BusinessWallet(context.Context, *BusinessWalletRequest) (*BusinessWalletResponse, error)
 	WalletBalance(context.Context, *WalletBalanceRequest) (*WalletBalanceResponse, error)
+	WalletChainBalance(context.Context, *WalletBalanceRequest) (*WalletChainBalanceResponse, error)
 	mustEmbedUnimplementedWalletServiceServer()
 }
 
@@ -96,6 +109,9 @@ func (UnimplementedWalletServiceServer) BusinessWallet(context.Context, *Busines
 }
 func (UnimplementedWalletServiceServer) WalletBalance(context.Context, *WalletBalanceRequest) (*WalletBalanceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method WalletBalance not implemented")
+}
+func (UnimplementedWalletServiceServer) WalletChainBalance(context.Context, *WalletBalanceRequest) (*WalletChainBalanceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method WalletChainBalance not implemented")
 }
 func (UnimplementedWalletServiceServer) mustEmbedUnimplementedWalletServiceServer() {}
 func (UnimplementedWalletServiceServer) testEmbeddedByValue()                       {}
@@ -172,6 +188,24 @@ func _WalletService_WalletBalance_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _WalletService_WalletChainBalance_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WalletBalanceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WalletServiceServer).WalletChainBalance(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: WalletService_WalletChainBalance_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WalletServiceServer).WalletChainBalance(ctx, req.(*WalletBalanceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // WalletService_ServiceDesc is the grpc.ServiceDesc for WalletService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -190,6 +224,10 @@ var WalletService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "WalletBalance",
 			Handler:    _WalletService_WalletBalance_Handler,
+		},
+		{
+			MethodName: "WalletChainBalance",
+			Handler:    _WalletService_WalletChainBalance_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

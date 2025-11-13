@@ -31,7 +31,7 @@ func GetAllChainBalances(userAddress string) []ChainBalanceResult {
 	var wg sync.WaitGroup
 
 	for chainName, config := range chainConfigs {
-		wg.Add(1)
+		wg.Add(1) 
 		go func(name string, cfg ChainConfig) {
 			defer wg.Done()
 			
@@ -62,6 +62,32 @@ func GetAllChainBalances(userAddress string) []ChainBalanceResult {
 	}
 
 	return finalResults
+}
+
+func GetChainBalances(userAddress string, chain string) ChainBalanceResult {
+	config, exists := chainConfigs[chain]
+	if !exists {
+		return ChainBalanceResult{
+			ChainName: chain,
+			Error:     fmt.Errorf("unsupported chain: %s", chain),
+		}
+	}
+
+	var result ChainBalanceResult
+	result.ChainName = chain
+
+	// Choose the right handler based on the chain type
+	if strings.Contains(strings.ToLower(chain), "solana") {
+		result = checkSolanaBalance(chain, config, userAddress)
+	} else if strings.Contains(strings.ToLower(chain), "tron") {
+		// result = checkTronBalance(chain, config, userAddress)
+		result.Error = fmt.Errorf("tron balance check not implemented")
+	} else {
+		// Default for EVM-compatible chains (Ethereum, Celo, Base, etc.)
+		result = checkEVMBalance(chain, config, userAddress)
+	}
+
+	return result
 }
 
 

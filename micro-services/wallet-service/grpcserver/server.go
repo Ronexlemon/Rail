@@ -172,7 +172,7 @@ if req.Network != "" {
 				ChainName: cb.ChainName,
 				Usdc:      cb.USDC,
 				Usdt:      cb.USDT,
-				Error:     "", // optionally map cb.Error if non-nil
+				Message:     "", // optionally map cb.Error if non-nil
 			})
 		}
 		pbBalancesMap[walletAddr] = &pb.ChainBalances{Balances: pbChainBalances}
@@ -183,6 +183,63 @@ if req.Network != "" {
 		Message:  "wallet balances retrieved successfully",
 	}, nil
 }
+
+
+func (s *WalletGRPCServer) WalletChainBalance(ctx context.Context, req *pb.WalletBalanceRequest) (*pb.WalletChainBalanceResponse, error) {
+	if req.BusinessId == "" && req.CustomerId == "" {
+		return nil, fmt.Errorf("either business_id or customer_id must be provided")
+	}
+
+	var customerID *string
+	if req.CustomerId != "" {
+		customerID = &req.CustomerId
+	}
+
+	if req.Chain == "" {
+		return nil, fmt.Errorf("chain must be provided")
+	}
+	chain := strings.ToLower(req.Chain)
+
+	if req.Network == "" {
+		return nil, fmt.Errorf("network must be provided")
+	}
+
+	var network db.Network
+	switch strings.ToLower(req.Network) {
+	case "evm":
+		network = db.NetworkEvm
+	case "solana":
+		network = db.NetworkSolana
+	case "tron":
+		network = db.NetworkTron
+	default:
+		return nil, fmt.Errorf("invalid network: %s", req.Network)
+	}
+
+	// Fetch wallet balance for that chain
+	balancesMap, err := s.service.WalletChainAddresses(ctx, chain, req.BusinessId, customerID, network)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch wallet balances: %v", err)
+	}
+
+	// Map[string]*pb.ChainBalanceResult
+	pbBalancesMap := make(map[string]*pb.ChainBalanceResult)
+
+	for walletAddr, cb := range balancesMap {
+		pbBalancesMap[walletAddr] = &pb.ChainBalanceResult{
+			ChainName: cb.ChainName,
+			Usdc:      cb.USDC,
+			Usdt:      cb.USDT,
+			Message:     "",
+		}
+	}
+
+	return &pb.WalletChainBalanceResponse{
+		Balances: pbBalancesMap,
+		
+	}, nil
+}
+
 
 
 

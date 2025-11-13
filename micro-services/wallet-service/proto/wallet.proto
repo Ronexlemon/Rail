@@ -7,7 +7,8 @@ option go_package = "github.com/ronexlemon/rail/micro-services/wallet-service/pr
 service WalletService {
   rpc CreateWallet(CreateWalletRequest) returns (CreateWalletResponse) {}
   rpc BusinessWallet(BusinessWalletRequest) returns (BusinessWalletResponse) {}
-  rpc WalletBalance(WalletBalanceRequest) returns (WalletBalanceResponse);
+  rpc WalletBalance(WalletBalanceRequest) returns (WalletBalanceResponse){};
+  rpc WalletChainBalance(WalletBalanceRequest) returns (WalletChainBalanceResponse) {};
 }
 
 message CreateWalletRequest {
@@ -50,7 +51,8 @@ message WalletBalanceRequest {
   string user_address = 1;
   string business_id = 2;
   string network =3;
-  string customer_id = 4; // optional
+  string chain =4;
+  string customer_id = 5; // optional
 
 }
 
@@ -69,8 +71,18 @@ message ChainBalanceResult {
   string chain_name = 1;
   string usdc = 2; 
   string usdt = 3;
-  string error = 4; // error message if any
+  string message = 4; // error message if any
 }
+
+
+
+
+// --- Response message ---
+message WalletChainBalanceResponse {
+  map<string, ChainBalanceResult> balances = 1; 
+  
+}
+
 
 enum WalletType {
   BUSINESS = 0;

@@ -162,3 +162,32 @@ func (s *WalletService) WalletAddresses(ctx context.Context, businessID string, 
 	return balancesMap, nil
 }
 
+
+func (s *WalletService) WalletChainAddresses(ctx context.Context,chain, businessID string, customerID *string, network db.Network) (map[string]helpers.ChainBalanceResult, error) {
+	if businessID == "" && (customerID == nil || *customerID == "") {
+		return nil, fmt.Errorf("either businessID or customerID must be provided")
+	}
+
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	default:
+	}
+
+	// Fetch wallet address for the specified network
+	addr, err := s.repo.GetWalletAddressByNetwork(businessID, customerID, network)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch wallet address for network %s: %w", network, err)
+	}
+
+	// Fetch balances for the address
+	balances := helpers.GetChainBalances(addr.Address,chain)
+
+	// Return as a map[address] -> balances
+	balancesMap := map[string]helpers.ChainBalanceResult{
+		addr.Address: balances,
+	}
+
+	return balancesMap, nil
+}
+

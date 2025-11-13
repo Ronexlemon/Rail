@@ -6,6 +6,19 @@ import (
 	"strings"
 )
 
+type ChainName string
+
+const (
+	EthereumMainnet  ChainName = "ethereum"
+	Sepolia          ChainName = "sepolia"
+	Celo             ChainName = "celo"
+	Base             ChainName = "base"
+	PolygonMainnet   ChainName = "polygon_mainnet"
+	ArbitrumMainnet  ChainName = "arbitrum_mainnet"
+	Solana           ChainName = "solana"
+	Tron             ChainName = "tron"
+)
+
 
 type TokenAddresses struct {
 	USDC string
@@ -21,7 +34,7 @@ type ChainConfig struct {
 
 var chainConfigs = map[string]ChainConfig{
 	// Ethereum Mainnet
-	"ethereum_mainnet": {
+	"ethereum": {
 		RPCURL: ETHEREUM_MAINNET,
 		TokenAddresses: TokenAddresses{
 			USDC: USDC_ETHEREUM_MAINNET,

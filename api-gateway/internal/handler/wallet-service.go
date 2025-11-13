@@ -203,3 +203,54 @@ func CustomerWalletsHandler(w http.ResponseWriter, r *http.Request) {
 
 
 //wallet balance
+
+func WalletsBalanceHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Extract businessID from context
+	businessIDValue := r.Context().Value("businessID")
+	if businessIDValue == nil {
+		http.Error(w, "businessID not found in context", http.StatusUnauthorized)
+		return
+	}
+	businessID, ok := businessIDValue.(string)
+	if !ok || businessID == "" {
+		http.Error(w, "invalid businessID in context", http.StatusUnauthorized)
+		return
+	}
+
+	// Connect to Wallet Service via gRPC
+	conn, err := grpc.Dial("wallet-service:50052", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Printf("failed to connect to wallet-service: %v", err)
+		http.Error(w, "service unavailable", http.StatusServiceUnavailable)
+		return
+	}
+	defer conn.Close()
+
+	client := pb.NewWalletServiceClient(conn)
+
+	// Call WalletBalance RPC
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	defer cancel()
+
+	resp, err := client.WalletBalance(ctx, &pb.WalletBalanceRequest{
+		BusinessId: businessID,
+		Network:    "evm", // specify the network
+	})
+	if err != nil {
+		log.Printf("error fetching wallet balances: %v", err)
+		http.Error(w, "failed to fetch wallet balances", http.StatusInternalServerError)
+		return
+	}
+
+	// Send JSON response
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		log.Printf("failed to encode response: %v", err)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+	}
+}
