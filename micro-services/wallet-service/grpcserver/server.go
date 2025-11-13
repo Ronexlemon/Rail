@@ -5,12 +5,15 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"strings"
 	"time"
 
 	"github.com/ronexlemon/rail/micro-services/wallet-service/internal/repository"
 	"github.com/ronexlemon/rail/micro-services/wallet-service/internal/service"
 	"github.com/ronexlemon/rail/micro-services/wallet-service/prisma/db"
 	pb "github.com/ronexlemon/rail/micro-services/wallet-service/proto"
+
+	//"github.com/ronexlemon/rail/micro-services/wallet-service/utils/helpers"
 	"google.golang.org/grpc"
 )
 
@@ -57,10 +60,11 @@ func (s *WalletGRPCServer) CreateWallet(ctx context.Context, req *pb.CreateWalle
 	}
 
 	// Get values from Prisma getters
-	var businessID, custID string
-	if val, ok := wallet.BusinessID(); ok {
-		businessID = val
-	}
+	// var businessID, custID string
+	var  custID string
+	// if val, ok := wallet.BusinessID(); ok {
+	// 	businessID = val
+	// }
 	if val, ok := wallet.CustomerID(); ok {
 		custID = val
 	}
@@ -79,7 +83,7 @@ func (s *WalletGRPCServer) CreateWallet(ctx context.Context, req *pb.CreateWalle
 	
 	return &pb.CreateWalletResponse{
 		WalletId:   wallet.ID,
-		BusinessId: businessID,
+		BusinessId:  wallet.BusinessID,
 		CustomerId: custID,
 		Type:       pbWalletType,
 		Message:    "Wallet created successfully",
@@ -124,6 +128,62 @@ func (s *WalletGRPCServer) BusinessWallet(ctx context.Context, req *pb.BusinessW
 		Message: "wallets retrieved successfully",
 	}, nil
 }
+
+func (s *WalletGRPCServer) WalletBalance(ctx context.Context, req *pb.WalletBalanceRequest) (*pb.WalletBalanceResponse, error) {
+	if req.BusinessId == "" && req.CustomerId == "" {
+		return nil, fmt.Errorf("either business_id or customer_id must be provided")
+	}
+
+	var customerID *string
+	if req.CustomerId != "" {
+		customerID = &req.CustomerId
+	}
+
+	var network db.Network
+if req.Network != "" {
+    switch strings.ToLower(req.Network) {
+    case "evm":
+        network = db.NetworkEvm
+    case "solana":
+        network = db.NetworkSolana
+    case "tron":
+        network = db.NetworkTron
+    default:
+        return nil, fmt.Errorf("invalid network: %s", req.Network)
+    }
+} else {
+    return nil, fmt.Errorf("network must be provided")
+}
+
+
+	// Fetch wallet balances map
+	balancesMap, err := s.service.WalletAddresses(ctx, req.BusinessId, customerID,network)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get wallets: %v", err)
+	}
+
+	// Convert to proto map
+	pbBalancesMap := make(map[string]*pb.ChainBalances) // ChainBalances is a repeated field wrapper
+
+	for walletAddr, chainBalances := range balancesMap {
+		var pbChainBalances []*pb.ChainBalanceResult
+		for _, cb := range chainBalances {
+			pbChainBalances = append(pbChainBalances, &pb.ChainBalanceResult{
+				ChainName: cb.ChainName,
+				Usdc:      cb.USDC,
+				Usdt:      cb.USDT,
+				Error:     "", // optionally map cb.Error if non-nil
+			})
+		}
+		pbBalancesMap[walletAddr] = &pb.ChainBalances{Balances: pbChainBalances}
+	}
+
+	return &pb.WalletBalanceResponse{
+		Balances: pbBalancesMap,
+		Message:  "wallet balances retrieved successfully",
+	}, nil
+}
+
 
 
 func ServerGrpc() {

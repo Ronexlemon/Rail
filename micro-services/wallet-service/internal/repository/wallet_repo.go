@@ -103,8 +103,8 @@ func (r *WalletRepository) CreateWallet(input CreateWalletInput) (*db.WalletMode
 	}
 
 	wallet, err := r.Client.Wallet.CreateOne(
-		db.Wallet.Type.Set(input.Type),
 		db.Wallet.BusinessID.Set(input.BusinessID),
+		db.Wallet.Type.Set(input.Type),
 		db.Wallet.CustomerID.SetOptional(input.CustomerID),
 	).Exec(r.Context)
 
@@ -175,3 +175,51 @@ func (r *WalletRepository) GetBusinessCustomerWallets(businessId,customerId stri
 
 	return wallets, nil
 }
+
+
+func (r *WalletRepository) GetWalletAddressByNetwork(businessId string, customerId *string, network db.Network) (*db.WalletAddressModel, error) {
+	if r.Client == nil {
+		return nil, fmt.Errorf("prisma client is nil")
+	}
+
+	if businessId == "" && (customerId == nil || *customerId == "") {
+		return nil, fmt.Errorf("either businessId or customerId must be provided")
+	}
+
+	var wallet *db.WalletModel
+	var err error
+
+	// Fetch the wallet depending on whether customerId is provided
+	if customerId != nil && *customerId != "" {
+		wallet, err = r.Client.Wallet.FindFirst(
+			db.Wallet.BusinessID.Equals(businessId),
+			db.Wallet.CustomerID.Equals(*customerId),
+		).With(
+			db.Wallet.Addresses.Fetch(),
+		).Exec(context.Background())
+	} else {
+		wallet, err = r.Client.Wallet.FindFirst(
+			db.Wallet.BusinessID.Equals(businessId),
+		).With(
+			db.Wallet.Addresses.Fetch(),
+		).Exec(context.Background())
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch wallet: %w", err)
+	}
+
+	if wallet == nil {
+		return nil, fmt.Errorf("wallet not found")
+	}
+
+	// Filter the wallet address for the requested network
+	for _, addr := range wallet.Addresses() {
+		if addr.Network == network {
+			return &addr, nil
+		}
+	}
+
+	return nil, fmt.Errorf("wallet address not found for network %s", network)
+}
+

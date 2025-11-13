@@ -2,9 +2,16 @@ package helpers
 
 import (
 	//"fmt"
+
+	"fmt"
+	"math/big"
 	"strings"
 	"sync"
 
+	"github.com/ethereum/go-ethereum/accounts/abi/bind/v2"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/ethclient"
+	token "github.com/ronexlemon/rail/micro-services/wallet-service/utils/helpers/tokens/abi"
 	//"github.com/ethereum/go-ethereum/common"
 	//"github.com/ethereum/go-ethereum/ethclient"
 )
@@ -35,7 +42,8 @@ func GetAllChainBalances(userAddress string) []ChainBalanceResult {
 			if strings.Contains(name, "solana") {
 				result = checkSolanaBalance(name, cfg, userAddress)
 			} else if strings.Contains(name, "tron") {
-				result = checkTronBalance(name, cfg, userAddress)
+				//result = checkTronBalance(name, cfg, userAddress)
+				
 			} else {
 				// Default to EVM for all others (Ethereum, Celo, Base, etc.)
 				result = checkEVMBalance(name, cfg, userAddress)
@@ -59,28 +67,38 @@ func GetAllChainBalances(userAddress string) []ChainBalanceResult {
 
 func checkEVMBalance(chainName string, config ChainConfig, address string) ChainBalanceResult {
 	// --- REAL WORLD: Initialize ethclient (Placeholder) ---
-	// client, err := ethclient.Dial(config.RPCURL)
-	// if err != nil {
-	// 	return ChainBalanceResult{ChainName: chainName, Error: fmt.Errorf("EVM RPC error: %w", err)}
-	// }
-	// defer client.Close()
+	client, err := ethclient.Dial(config.RPCURL)
+	if err != nil {
+		return ChainBalanceResult{ChainName: chainName, Error: fmt.Errorf("EVM RPC error: %w", err)}
+	}
+	defer client.Close()
 	
-	// Convert userAddress to common.Address (Placeholder)
-	//userCommonAddress := common.HexToAddress(address) 
-
-	// --- REAL WORLD: Get Balances via Token Contract Calls ---
 	
-	//balanceUSDC, err := getERC20Balance(client, userCommonAddress, config.TokenAddresses.USDC, 6) // USDC typically has 6 decimals
-	// if err != nil { /* Handle error */ }
+	userCommonAddress := common.HexToAddress(address) 
 
-	// balanceUSDT, err := getERC20Balance(client, userCommonAddress, config.TokenAddresses.USDT, 18) // USDT often has 18 decimals
-	// if err != nil { /* Handle error */ }
+	
+	
+	balanceUSDC, err := getERC20Balance(client, userCommonAddress, common.HexToAddress(config.TokenAddresses.USDC)) // USDC typically has 6 decimals
+	if err != nil { 
+		 return ChainBalanceResult{
+			ChainName: chainName,
+			Error:     fmt.Errorf("EVM RPC error: %w", err),
+		}
+	 }
+
+	 balanceUSDT, err := getERC20Balance(client, userCommonAddress, common.HexToAddress(config.TokenAddresses.USDT)) // USDT often has 18 decimals
+	if err != nil { 
+		return ChainBalanceResult{
+			ChainName: chainName,
+			Error:     fmt.Errorf("EVM RPC error: %w", err),
+		}
+	 }
 
 	// Simulating success
 	return ChainBalanceResult{
 		ChainName: chainName,
-		USDC:      "123.45", 
-		USDT:      "500.00",
+		USDC:      balanceUSDC.String(), 
+		USDT:      balanceUSDT.String(),
 		Error:     nil,
 	}
 }
@@ -124,4 +142,34 @@ func checkTronBalance(chainName string, config ChainConfig, address string) Chai
 		USDT:      "999.99",
 		Error:     nil,
 	}
+}
+
+func getERC20Balance(client *ethclient.Client, tokenAddress, userAddress common.Address) (*big.Float, error) {
+	
+	instance, err := token.NewToken(tokenAddress, client)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create token instance: %v", err)
+	}
+
+	
+	bal, err := instance.BalanceOf(&bind.CallOpts{}, userAddress)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch balance: %v", err)
+	}
+
+	
+	decimals, err := instance.Decimals(&bind.CallOpts{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch token decimals: %v", err)
+	}
+
+	// Convert balance to human-readable value (divide by 10^decimals)
+	balanceFloat := new(big.Float).SetInt(bal)
+	divisor := new(big.Float).SetFloat64(1)
+	for i := uint8(0); i < decimals; i++ {
+		divisor.Mul(divisor, big.NewFloat(10))
+	}
+	balanceInEther := new(big.Float).Quo(balanceFloat, divisor)
+
+	return balanceInEther, nil
 }

@@ -6,16 +6,18 @@ datasource db {
 generator db {
     provider = "go run github.com/steebchen/prisma-client-go"
 }
+
 model Wallet {
     id         String          @id @default(uuid())
-    businessId String?         // from Business Service
-    customerId String?         // from Business Customer Service (if end-user)
+    businessId String          // required for both business and customer wallets
+    customerId String?         // optional for business wallets; required for customer wallets
     type       WalletType
     createdAt  DateTime        @default(now())
     updatedAt  DateTime        @updatedAt
     addresses  WalletAddress[] // One-to-many relationship
     virtualAccounts VirtualAccount[] // One wallet can have multiple virtual accounts
 
+    @@unique([businessId, customerId]) // ensures unique wallet per business+customer combination
     @@index([businessId])
     @@index([customerId])
 }

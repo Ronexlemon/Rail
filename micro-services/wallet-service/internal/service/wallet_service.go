@@ -8,6 +8,7 @@ import (
 	"github.com/ronexlemon/rail/micro-services/wallet-service/internal/repository"
 	"github.com/ronexlemon/rail/micro-services/wallet-service/prisma/db"
 	"github.com/ronexlemon/rail/micro-services/wallet-service/utils/chains"
+	"github.com/ronexlemon/rail/micro-services/wallet-service/utils/helpers"
 )
 
 type WalletService struct {
@@ -131,3 +132,33 @@ func (s *WalletService) BusinessWallet(ctx context.Context, businessID string, c
 	log.Printf("Fetched %d wallet(s) for businessID=%s", len(wallets), businessID)
 	return wallets, nil
 }
+
+
+func (s *WalletService) WalletAddresses(ctx context.Context, businessID string, customerID *string, network db.Network) (map[string][]helpers.ChainBalanceResult, error) {
+	if businessID == "" && (customerID == nil || *customerID == "") {
+		return nil, fmt.Errorf("either businessID or customerID must be provided")
+	}
+
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	default:
+	}
+
+	// Fetch wallet address for the specified network
+	addr, err := s.repo.GetWalletAddressByNetwork(businessID, customerID, network)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch wallet address for network %s: %w", network, err)
+	}
+
+	// Fetch balances for the address
+	balances := helpers.GetAllChainBalances(addr.Address)
+
+	// Return as a map[address] -> balances
+	balancesMap := map[string][]helpers.ChainBalanceResult{
+		addr.Address: balances,
+	}
+
+	return balancesMap, nil
+}
+

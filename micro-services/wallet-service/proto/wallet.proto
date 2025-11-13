@@ -4,12 +4,11 @@ package proto;
 
 option go_package = "github.com/ronexlemon/rail/micro-services/wallet-service/proto;proto";
 
-
 service WalletService {
   rpc CreateWallet(CreateWalletRequest) returns (CreateWalletResponse) {}
   rpc BusinessWallet(BusinessWalletRequest) returns (BusinessWalletResponse) {}
+  rpc WalletBalance(WalletBalanceRequest) returns (WalletBalanceResponse);
 }
-
 
 message CreateWalletRequest {
   string business_id = 1; 
@@ -24,7 +23,6 @@ message CreateWalletResponse {
   WalletType type = 4;
   string message = 5;
 }
-
 
 /***Business Wallets***/
 message BusinessWalletRequest {
@@ -47,6 +45,32 @@ message Wallet {
   string created_at = 5;
 }
 
+/*** Wallet Balance ***/
+message WalletBalanceRequest {
+  string user_address = 1;
+  string business_id = 2;
+  string network =3;
+  string customer_id = 4; // optional
+
+}
+
+message WalletBalanceResponse {
+  map<string, ChainBalances> balances = 1; // key = wallet address
+  string message = 2;
+}
+
+// Wrapper for repeated chain balances per wallet
+message ChainBalances {
+  repeated ChainBalanceResult balances = 1;
+}
+
+// Chain balance per network
+message ChainBalanceResult {
+  string chain_name = 1;
+  string usdc = 2; 
+  string usdt = 3;
+  string error = 4; // error message if any
+}
 
 enum WalletType {
   BUSINESS = 0;
