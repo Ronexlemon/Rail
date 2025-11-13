@@ -104,7 +104,7 @@ func checkEVMBalance(chainName string, config ChainConfig, address string) Chain
 
 	
 	
-	balanceUSDC, err := getERC20Balance(client, userCommonAddress, common.HexToAddress(config.TokenAddresses.USDC)) // USDC typically has 6 decimals
+	balanceUSDC, err := getERC20Balance(client,common.HexToAddress(config.TokenAddresses.USDC), userCommonAddress) // USDC typically has 6 decimals
 	if err != nil { 
 		 return ChainBalanceResult{
 			ChainName: chainName,
@@ -112,7 +112,7 @@ func checkEVMBalance(chainName string, config ChainConfig, address string) Chain
 		}
 	 }
 
-	 balanceUSDT, err := getERC20Balance(client, userCommonAddress, common.HexToAddress(config.TokenAddresses.USDT)) // USDT often has 18 decimals
+	 balanceUSDT, err := getERC20Balance(client,common.HexToAddress(config.TokenAddresses.USDT) ,userCommonAddress) // USDT often has 18 decimals
 	if err != nil { 
 		return ChainBalanceResult{
 			ChainName: chainName,

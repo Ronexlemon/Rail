@@ -222,6 +222,8 @@ func (s *WalletGRPCServer) WalletChainBalance(ctx context.Context, req *pb.Walle
 		return nil, fmt.Errorf("failed to fetch wallet balances: %v", err)
 	}
 
+	log.Println("The balance Map Value is",balancesMap)
+
 	// Map[string]*pb.ChainBalanceResult
 	pbBalancesMap := make(map[string]*pb.ChainBalanceResult)
 
@@ -230,7 +232,7 @@ func (s *WalletGRPCServer) WalletChainBalance(ctx context.Context, req *pb.Walle
 			ChainName: cb.ChainName,
 			Usdc:      cb.USDC,
 			Usdt:      cb.USDT,
-			Message:     "",
+			Message:     "Success",
 		}
 	}
 

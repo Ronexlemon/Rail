@@ -3,10 +3,11 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"strings"
+	//"strings"
 
 	"github.com/ronexlemon/rail/api-gateway/internal/handler"
 	"github.com/ronexlemon/rail/api-gateway/internal/middleware"
+	"github.com/ronexlemon/rail/api-gateway/internal/router"
 )
 
 func main() {
@@ -21,53 +22,19 @@ func main() {
 	// Public route to register a business
 	mux.HandleFunc("/register-business", handler.RegisterBusinessHandler)
 
-	// Wallet endpoints (protected)
-	mux.Handle("/v0/wallet", middleware.AuthMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodPost {
-			// Create business wallet
-			handler.CreateWalletHandler(w, r)
-		} else if r.Method == http.MethodGet {
-			// Fetch all business wallets
-			handler.WalletsHandler(w, r)
-		} else {
-			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		}
-	})))
+	// --- 2.3 Protected Wallet Routes ---
 
-	// Customer wallet endpoint: /v0/wallet/{customerId}
-	mux.Handle("/v0/wallet/", middleware.AuthMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		customerID := strings.TrimPrefix(r.URL.Path, "/v0/wallet/")
-		if customerID == "" {
-			http.Error(w, "customerId required in path", http.StatusBadRequest)
-			return
-		}
+	// POST /v0/wallet (Create Business Wallet) | GET /v0/wallet (Get Business Wallets)
+	mux.Handle("/v0/wallet", middleware.AuthMiddleware(http.HandlerFunc(router.WalletsRouteHandler)))
+	
+	// GET /v0/wallet/balance (Check Balances)
+	// Must be defined before the generic /v0/wallet/ handler to take precedence
+	mux.Handle("/v0/wallet/balance", middleware.AuthMiddleware(http.HandlerFunc(router.BalanceRouteHandler)))
 
-		if r.Method == http.MethodPost {
-			// Create customer wallet
-			handler.CreateCustomerWalletHandler(w, r)
-		} else if r.Method == http.MethodGet {
-			// Fetch customer wallets
-			handler.CustomerWalletsHandler(w, r)
-		} else {
-			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		}
-	})))
-
-
-	//balances
-	mux.Handle("/v0/wallet/balance", middleware.AuthMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case http.MethodPost:
-			// Create wallet (business or customer)
-			//handler.CreateWalletHandler(w, r)
-		case http.MethodGet:
-			// Fetch wallet balances
-			// Optional query parameters: ?customerId=xxx&network=evm
-			handler.WalletsBalanceHandler(w, r)
-		default:
-			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		}
-	})))
+	// POST/GET /v0/wallet/{customerId} (Customer Wallet Operations)
+	// WARNING: ServeMux's path matching means this will catch EVERYTHING starting with /v0/wallet/
+	// including /v0/wallet/balance if it wasn't defined first. This is a limitation.
+	mux.Handle("/v0/wallet/", middleware.AuthMiddleware(http.HandlerFunc(router.CustomerWalletsRouteHandler)))
 
 	fmt.Println("API Gateway running on :8080")
 	if err := http.ListenAndServe(":8080", mux); err != nil {

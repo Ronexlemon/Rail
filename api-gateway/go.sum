@@ -12,6 +12,8 @@ github.com/ronexlemon/rail/micro-services/auth-service v0.0.0-20251112115529-39d
 github.com/ronexlemon/rail/micro-services/auth-service v0.0.0-20251112115529-39d32001e357/go.mod h1:w98RazOeVFIGgy7vtYnA9ECuwlo9IGQI5uPeroGbFns=
 github.com/ronexlemon/rail/micro-services/wallet-service v0.0.0-20251113113246-8bcd41d4861b h1:OhXreiU8HObS6TukE21Lo2F27pb0R7IxBJgNAA6sMeU=
 github.com/ronexlemon/rail/micro-services/wallet-service v0.0.0-20251113113246-8bcd41d4861b/go.mod h1:i50XMDgzlG/pHXbrdq4ChY4spVFXeTbYZ7wppTWGWLs=
+github.com/ronexlemon/rail/micro-services/wallet-service v0.0.0-20251113134805-0ab095b058f9 h1:WWgvmGt+NVoT8x6dYNcFADnphnSlK23vNB4Slk9yAuU=
+github.com/ronexlemon/rail/micro-services/wallet-service v0.0.0-20251113134805-0ab095b058f9/go.mod h1:i50XMDgzlG/pHXbrdq4ChY4spVFXeTbYZ7wppTWGWLs=
 go.opentelemetry.io/auto/sdk v1.1.0 h1:cH53jehLUN6UFLY71z+NDOiNJqDdPRaXzTel0sJySYA=
 go.opentelemetry.io/auto/sdk v1.1.0/go.mod h1:3wSPjt5PWp2RhlCcmmOial7AvC4DQqZb7a7wCow3W8A=
 go.opentelemetry.io/otel v1.37.0 h1:9zhNfelUvx0KBfu/gb+ZgeAfAgtWrfHJZcAqFC228wQ=
