@@ -89,7 +89,7 @@ var chainConfigs = map[string]ChainConfig{
 	},
 
 	"tron": {
-		RPCURL: TRON_MAINNET,
+		RPCURL: TRON_GRPC_MAINNET,
 		TokenAddresses: TokenAddresses{
 			USDC: USDC_TRON_MAINNET,
 			USDT: USDT_TRON_MAINNET,

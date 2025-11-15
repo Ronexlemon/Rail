@@ -2,6 +2,7 @@ package clients
 
 import (
 	"fmt"
+	
 	"math/big"
 
 	"github.com/fbsobreira/gotron-sdk/pkg/client"
@@ -44,8 +45,10 @@ func (t *NewGRPCClient) TRC20Decimal(contractAddress string) (*big.Int, error) {
 
 func (t *NewGRPCClient) TRC20ContractBalance(addr string, contractAddress string) (*big.Int, error) {
 	val, err := t.Client.TRC20ContractBalance(addr, contractAddress)
+	
 	if err != nil {
 		return nil, fmt.Errorf("failed to get TRC20 contract balance: %w", err)
 	}
 	return val, nil
 }
+

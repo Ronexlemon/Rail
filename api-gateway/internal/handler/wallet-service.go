@@ -257,11 +257,12 @@ func WalletsBalanceHandler(w http.ResponseWriter, r *http.Request) {
 
 type RequestBody struct{
 	Chain string `json:"chain"`
+	Network string `json:"network"`
 }
 
 
 func WalletsChainBalanceHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
+	if r.Method != http.MethodPost {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
@@ -305,7 +306,7 @@ func WalletsChainBalanceHandler(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := client.WalletChainBalance(ctx, &pb.WalletBalanceRequest{
 		BusinessId: businessID,
-		Network:    "evm", // specify the network
+		Network:    req.Network, // specify the network
 		Chain: req.Chain,
 	})
 	if err != nil {

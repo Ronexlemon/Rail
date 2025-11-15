@@ -65,6 +65,6 @@ func BalanceRouteHandler(w http.ResponseWriter, r *http.Request) {
 		// Optional query parameters: ?customerId=xxx&network=evm
 		handler.WalletsChainBalanceHandler(w, r)
 	default:
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		http.Error(w, "method not allowedd", http.StatusMethodNotAllowed)
 	}
 }

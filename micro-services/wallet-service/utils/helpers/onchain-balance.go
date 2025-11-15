@@ -4,6 +4,7 @@ import (
 	//"fmt"
 
 	"fmt"
+	"log"
 	"math/big"
 	"strings"
 	"sync"
@@ -11,6 +12,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind/v2"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"google.golang.org/grpc"
 
 	//"github.com/fbsobreira/gotron-sdk/pkg/address"
 	blockClient "github.com/ronexlemon/rail/micro-services/wallet-service/pkg/clients"
@@ -155,9 +157,11 @@ func checkSolanaBalance(chainName string, config ChainConfig, userPubkey string)
 
 func checkTronBalance(chainName string, config ChainConfig, userAddress string) ChainBalanceResult {
 	tron := blockClient.NewTronClient(config.RPCURL)
-	tron.Client.Start()
+	tron.Client.Start(grpc.WithInsecure()) //move grpc insicure
 
 	 balanceUSDT, err := tron.TRC20ContractBalance(userAddress,config.TokenAddresses.USDT)
+	 log.Println("THE ERROR GEETING THE TOKEN IS",balanceUSDT,err)
+
 	 if err != nil { 
 		 return ChainBalanceResult{
 			ChainName: chainName,
@@ -165,6 +169,8 @@ func checkTronBalance(chainName string, config ChainConfig, userAddress string) 
 		}
 	 }
 	 balanceUSDC, err := tron.TRC20ContractBalance(userAddress,config.TokenAddresses.USDC)
+	  log.Println("THE ERROR GEETING THE TOKEN IS USDC",balanceUSDC,err)
+
 	 if err != nil { 
 		 return ChainBalanceResult{
 			ChainName: chainName,

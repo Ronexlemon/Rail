@@ -58,7 +58,7 @@ const (
 	// USDT (TRC-20) - Official Tether address (highly used on TRON)
 	USDT_TRON_MAINNET = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
 	// USDC (TRC-20) - Official Circle USDC address
-	USDC_TRON_MAINNET = "TEkxiRgdD6DdfSFJb8cEpdBqZ92K9g2usN" 
+	USDC_TRON_MAINNET = "TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8"  //
 
 	// Nile Testnet
 	// Note: Testnet addresses are community-deployed and can change.
