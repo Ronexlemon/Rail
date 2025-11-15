@@ -41,5 +41,6 @@ const (
 // TRON RPC
 const (
 	TRON_MAINNET = "https://api.trongrid.io" 
+	TRON_GRPC_MAINNET = "grpc.trongrid.io:50051"
 	TRON_NILE_TESTNET = "https://api.nileex.io"
 )

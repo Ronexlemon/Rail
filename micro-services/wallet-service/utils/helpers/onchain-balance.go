@@ -11,6 +11,9 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind/v2"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
+
+	//"github.com/fbsobreira/gotron-sdk/pkg/address"
+	blockClient "github.com/ronexlemon/rail/micro-services/wallet-service/pkg/clients"
 	token "github.com/ronexlemon/rail/micro-services/wallet-service/utils/helpers/tokens/abi"
 	//"github.com/ethereum/go-ethereum/common"
 	//"github.com/ethereum/go-ethereum/ethclient"
@@ -80,7 +83,7 @@ func GetChainBalances(userAddress string, chain string) ChainBalanceResult {
 	if strings.Contains(strings.ToLower(chain), "solana") {
 		result = checkSolanaBalance(chain, config, userAddress)
 	} else if strings.Contains(strings.ToLower(chain), "tron") {
-		// result = checkTronBalance(chain, config, userAddress)
+		result = checkTronBalance(chain, config, userAddress)
 		result.Error = fmt.Errorf("tron balance check not implemented")
 	} else {
 		// Default for EVM-compatible chains (Ethereum, Celo, Base, etc.)
@@ -150,22 +153,28 @@ func checkSolanaBalance(chainName string, config ChainConfig, userPubkey string)
 	}
 }
 
-func checkTronBalance(chainName string, config ChainConfig, address string) ChainBalanceResult {
-	// --- REAL WORLD: Initialize Tron RPC Client (Placeholder) ---
-	// client := tronclient.New(config.RPCURL)
+func checkTronBalance(chainName string, config ChainConfig, userAddress string) ChainBalanceResult {
+	tron := blockClient.NewTronClient(config.RPCURL)
+	tron.Client.Start()
 
-	// TRON addresses need to be converted to hex format (base58 to hex)
-	// hexAddress := tron.Base58ToHex(address)
-
-	// --- REAL WORLD: Call TRC-20 Contract Methods ---
-	// TRON client often provides specific calls for TRC-20 tokens:
-	// balanceUSDT, err := client.TRC20BalanceOf(hexAddress, config.TokenAddresses.USDT)
-
-	// Simulating success
+	 balanceUSDT, err := tron.TRC20ContractBalance(userAddress,config.TokenAddresses.USDT)
+	 if err != nil { 
+		 return ChainBalanceResult{
+			ChainName: chainName,
+			Error:     fmt.Errorf("EVM RPC error: %w", err),
+		}
+	 }
+	 balanceUSDC, err := tron.TRC20ContractBalance(userAddress,config.TokenAddresses.USDC)
+	 if err != nil { 
+		 return ChainBalanceResult{
+			ChainName: chainName,
+			Error:     fmt.Errorf("EVM RPC error: %w", err),
+		}
+	 }
 	return ChainBalanceResult{
 		ChainName: chainName,
-		USDC:      "0.00", 
-		USDT:      "999.99",
+		USDC:     balanceUSDC.String(), 
+		USDT:      balanceUSDT.String(),
 		Error:     nil,
 	}
 }
